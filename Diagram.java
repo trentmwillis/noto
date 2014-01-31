@@ -1,3 +1,20 @@
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.image.*;
+import java.awt.geom.*;
+import java.io.*;
+import java.lang.Math;
+import java.util.Random;
+import java.util.ArrayList;
+import java.util.Stack;     // Used in Interpreter class
+import javax.imageio.*;
+import javax.swing.*;
+import javax.swing.event.*;
+import javax.swing.SwingUtilities;
+import javax.swing.undo.*;
+
+import java.util.Scanner;
+
 public abstract class Diagram {
     private File imgFile;
     private Image img;

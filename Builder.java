@@ -49,16 +49,15 @@ public class Builder {
                 FileWriter writer = new FileWriter(htmlFile);
                 writer.write(overhead);
 
+                Interpreter.getInstance().reset();
+
                 // Loop through each line in the File
                 Scanner fileScanner = new Scanner(input);
-                Scanner lineScanner;
                 while (fileScanner.hasNextLine()) {
-                    lineScanner = new Scanner(fileScanner.nextLine());
-                    while (lineScanner.hasNext()) {
-                        writer.append(lineScanner.next() + " ");
-                    }
-                    writer.append("<br>");
+                    Interpreter.getInstance().interpret(fileScanner.nextLine());
                 }
+
+                writer.append(Interpreter.getInstance().getOutput());
 
                 writer.append("</body>");
                 writer.flush();
@@ -75,20 +74,59 @@ public class Builder {
 }
 
 class Interpreter {
-    // Markov algorithm
-    private Stack<String> tags;
+    // Markov...CYK algorithm?
+    private static Interpreter instance;
+
+    private static Stack<String> tags = new Stack<String>();
     private static StringBuilder output;
+    private static Scanner scanner;
+
+    protected Interpreter() { /* Nothing */ }
+
+    public static Interpreter getInstance() {
+        if (instance == null) {
+            instance = new Interpreter();
+        }
+
+        return instance;
+    }
+
+    public static void reset() {
+        output = new StringBuilder();
+        tags.removeAllElements();
+    }
 
     public static void interpret(String line) {
         // Check beginning of each word for tags
-        // Should I use RegEx? Probably...not
+        scanner = new Scanner(line);
+
+        openTag("p");
+
+        // Loop through each token
+        while (scanner.hasNext()) {
+            output.append(scanner.next());
+        }
+
+        closeTag(tags.pop());
     }
 
     public static String getOutput() {
-        // Closes open tags
+        // Closes any open tags
+        while (!tags.empty()) {
+            closeTag(tags.pop());
+        }
 
         // Return output as String
         return output.toString();
+    }
+
+    private static void openTag(String tag) {
+        tags.push(tag);
+        output.append("<" + tag + ">");
+    }
+
+    private static void closeTag(String tag) {
+        output.append("</" + tag + ">");
     }
 }
 

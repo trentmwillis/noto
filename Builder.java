@@ -74,7 +74,6 @@ public class Builder {
 }
 
 class Interpreter {
-    // Markov...CYK algorithm?
     private static Interpreter instance;
 
     private static Stack<String> tags = new Stack<String>();
@@ -100,14 +99,31 @@ class Interpreter {
         // Check beginning of each word for tags
         scanner = new Scanner(line);
 
-        openTag("p");
+        // Check beginning of line for block style
+        // Default to 'p'
+        // Headings, pre, blockquote, hr
+        if (scanner.hasNext()) {
+            String start = scanner.next();
+            HTMLElement type = getBlockType(start);
+            openTag(type.getTag());
 
-        // Loop through each token
-        while (scanner.hasNext()) {
-            output.append(scanner.next());
+            // Loop through each token
+            while (scanner.hasNext()) {
+                output.append(scanner.next());
+            }
+
+            closeTag(tags.pop());
+        }
+    }
+
+    private static HTMLElement getBlockType(String token) {
+        for  (HTMLElement element : HTMLElement.values()) {
+            if (token.equals(element.getSymbol())) {
+                return element;
+            }
         }
 
-        closeTag(tags.pop());
+        return HTMLElement.P;
     }
 
     public static String getOutput() {

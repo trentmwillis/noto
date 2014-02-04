@@ -1,4 +1,4 @@
-public class HTML {
+public class Html {
     public static final HTMLElement[] BLOCK_ELEMENTS = {
         HTMLElement.H1,
         HTMLElement.H2,
@@ -10,5 +10,15 @@ public class HTML {
         HTMLElement.PRE,
         HTMLElement.BLOCKQUOTE,
         HTMLElement.HR
+    };
+
+    public static final HTMLElement[] INLINE_ELEMENTS = {
+        HTMLElement.STRONG,
+        HTMLElement.EM,
+        HTMLElement.SUB,
+        HTMLElement.SUP,
+        HTMLElement.SMALL,
+        HTMLElement.MARK,
+        HTMLElement.CODE
     };
 }

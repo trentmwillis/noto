@@ -44,14 +44,6 @@ public class Interpreter {
         // Check beginning of each word for tags
         scanner = new Scanner(line);
 
-        if (!scanner.hasNext()) {
-            if (!tags.empty()) {
-                closeTag(tags.pop());
-            }
-            lastLineEmpty = true;
-            return;
-        }
-
         // Check beginning of line for block style
         if (scanner.hasNext()) {
             String start = scanner.next();
@@ -59,26 +51,65 @@ public class Interpreter {
             currentLineType = getBlockType(start);
 
             if (currentLineType != lastLineType) {
+                closeLastTag();
                 openTag(currentLineType.getTag());
+            } else {
+                output.append("<br>");
+            }
+
+            if (currentLineType == HTMLElement.P) {
+                output.append(start + " ");
             }
 
             // Loop through each token
             while (scanner.hasNext()) {
-                output.append(scanner.next());
+                String token = scanner.next();
+
+                HTMLElement inlineType = getInlineOpenType(token);
+                if (inlineType != null) {
+                    openTag(inlineType.getTag());
+                }
+
+                output.append(token + " ");
+
+                inlineType = getInlineCloseType(token);
+                if (inlineType != null) {
+                    closeLastTag();
+                }
             }
+        } else {
+            closeLastTag();
+            lastLineEmpty = true;
         }
     }
 
     /* Private Methods */
 
     private static HTMLElement getBlockType(String token) {
-        for  (HTMLElement element : HTMLElement.values()) {
+        for  (HTMLElement element : Html.BLOCK_ELEMENTS) {
             if (token.equals(element.getSymbol())) {
                 return element;
             }
         }
 
         return HTMLElement.P;
+    }
+
+    private static HTMLElement getInlineOpenType(String token) {
+        for (HTMLElement element : Html.INLINE_ELEMENTS) {
+            if (token.startsWith(element.getSymbol())) {
+                return element;
+            }
+        }
+        return null;
+    }
+    private static HTMLElement getInlineCloseType(String token) {
+        for (HTMLElement element : Html.INLINE_ELEMENTS) {
+            if (token.endsWith(element.getSymbol())) {
+                return element;
+            }
+        }
+        return null;
     }
 
     private static void openTag(String tag) {
@@ -88,5 +119,11 @@ public class Interpreter {
 
     private static void closeTag(String tag) {
         output.append("</" + tag + ">");
+    }
+
+    private static void closeLastTag() {
+        if (!tags.empty()) {
+            closeTag(tags.pop());
+        }
     }
 }

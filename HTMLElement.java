@@ -6,17 +6,17 @@ public enum HTMLElement {
     H5 ("h5", "#####"),
     H6 ("h6", "######"),
     P ("p", ""),
+    PRE ("pre", "   "),
+    BLOCKQUOTE ("blockquote", ">"),
+    HR ("hr", "---"),
+
     STRONG ("strong", "!!"),
     EM ("em", "**"),
     SUB ("sub", "vv"),
     SUP ("sup", "^^"),
     SMALL ("small", "~~"),
     MARK ("mark", "[["),
-    CODE ("code", "<<"),
-    PRE ("pre", "   "),
-    BLOCKQUOTE ("blockquote", ">"),
-    HR ("hr", "---");
-
+    CODE ("code", "<<");
 
     private String tag;
     private String symbol;

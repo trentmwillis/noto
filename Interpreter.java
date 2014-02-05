@@ -50,6 +50,8 @@ public class Interpreter {
             lastLineType = currentLineType;
             currentLineType = getBlockType(start);
 
+            // If the LineType changed, then we know the last block closed
+            // Otherwise, it was simply a line-break
             if (currentLineType != lastLineType) {
                 closeLastTag();
                 openTag(currentLineType.getTag());
@@ -60,33 +62,40 @@ public class Interpreter {
             boolean firstOfPara = (currentLineType == HTMLElement.P);
             String token;
 
-            // Loop through each token
-            while (scanner.hasNext()) {
-                if (firstOfPara) {
-                    token = start;
-                    firstOfPara = false;
-                } else {
-                    token = scanner.next();
-                }
-
-                HTMLElement inlineType = getInlineOpenType(token);
-                if (inlineType != null) {
-                    openTag(inlineType.getTag());
-                    token = token.substring(2);
-                }
-
-                inlineType = getInlineCloseType(token);
-                if (inlineType != null) {
-                    if (token.endsWith(".")) {
-                        token = token.substring(0, token.length()-3) + ".";
+            // If the line is a PRE line, we just want to output the entire line
+            if (currentLineType == HTMLElement.PRE) {
+                scanner.useDelimiter("\n");
+                output.append(scanner.next());
+                scanner.reset();
+            } else {
+                // Loop through each token
+                while (scanner.hasNext()) {
+                    if (firstOfPara) {
+                        token = start;
+                        firstOfPara = false;
                     } else {
-                        token = token.substring(0,token.length()-2);
+                        token = scanner.next();
                     }
-                    output.append(token);
-                    closeLastTag();
-                    output.append(" ");
-                } else {
-                    output.append(token + " ");
+
+                    HTMLElement inlineType = getInlineOpenType(token);
+                    if (inlineType != null) {
+                        openTag(inlineType.getTag());
+                        token = token.substring(2);
+                    }
+
+                    inlineType = getInlineCloseType(token);
+                    if (inlineType != null) {
+                        if (token.endsWith(".")) {
+                            token = token.substring(0, token.length()-3) + ".";
+                        } else {
+                            token = token.substring(0,token.length()-2);
+                        }
+                        output.append(token);
+                        closeLastTag();
+                        output.append(" ");
+                    } else {
+                        output.append(token + " ");
+                    }
                 }
             }
         } else {

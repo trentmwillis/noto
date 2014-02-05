@@ -1,19 +1,12 @@
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.image.*;
-import java.awt.geom.*;
 import java.io.*;
-import java.lang.Math;
-import java.util.Random;
-import java.util.ArrayList;
-import java.util.Stack;     // Used in Interpreter class
-import javax.imageio.*;
 import javax.swing.*;
 import javax.swing.event.*;
-import javax.swing.SwingUtilities;
 import javax.swing.undo.*;
 
 public class Noto {
+    // Set the default size of the window
     private static final int WIDTH = 800;
     private static final int HEIGHT = 640;
 
@@ -34,9 +27,6 @@ public class Noto {
 }
 
 class NotoFrame extends JFrame {
-    private final int WIDTH;
-    private final int HEIGHT;
-
     private JFileChooser fileChooser = new JFileChooser();
     private JTextArea textArea = new JTextArea();
 
@@ -121,8 +111,6 @@ class NotoFrame extends JFrame {
     /* Constructor */
     public NotoFrame(int width, int height) {
         setTitle("Noto - Note-Taking App");
-        WIDTH = width;
-        HEIGHT = height;
         setSize(width, height);
 
         edited = false;

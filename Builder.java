@@ -1,24 +1,11 @@
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.image.*;
-import java.awt.geom.*;
 import java.io.*;
-import java.lang.Math;
-import java.util.Random;
-import java.util.ArrayList;
-import java.util.Stack;     // Used in Interpreter class
-import javax.imageio.*;
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.SwingUtilities;
-import javax.swing.undo.*;
-
 import java.util.Scanner;
 
 /*
 Builder class represents the Facade through which the user can call the building
 of files. It is a singleton class because there should never be more than one.
 */
+
 public class Builder {
     private static Builder instance;
 
@@ -27,7 +14,7 @@ public class Builder {
     private File output;
     private File input;
 
-    private String overhead = "<html><head><meta charset='utf-8'><title>Noto Note</title><link rel='stylesheet' href='styles.css'></head><body><div id='content'>";
+    private String overhead = "<html><head><meta charset='utf-8'><title>Noto Note</title><link rel='stylesheet' href='styles.css'><link rel='stylesheet' href='http://yandex.st/highlightjs/8.0/styles/default.min.css'></head><body><div id='content'>";
 
     protected Builder() { /* Nothing */ }
 
@@ -59,7 +46,7 @@ public class Builder {
 
                 writer.append(Interpreter.getInstance().getOutput());
 
-                writer.append("</div></body>");
+                writer.append("</div><script src='http://yandex.st/highlightjs/8.0/highlight.min.js'></script><script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js'></script><script>$(document).ready(function() {$('pre').each(function(i, e) {hljs.highlightBlock(e)});});</script></body>");
                 writer.flush();
                 writer.close();
             } catch (IOException e) {
@@ -70,28 +57,5 @@ public class Builder {
 
     public void buildAll() {
 
-    }
-}
-
-class Parser {
-    private static Diagram building;
-
-    public static void newDiagram(Class type) {
-        // Use reflection?
-    }
-
-    public static void addData(String data) {
-        if (building != null) {
-            building.addData(data);     // Add more data to the diagram
-        }
-    }
-
-    public static String getImage() {
-        if (building != null) {
-            building.makeImage();           // Saves out a .png of the diagram
-            return building.getImagePath(); // Return relative path to diagram
-        }
-
-        return "";
     }
 }

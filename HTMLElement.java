@@ -6,7 +6,7 @@ public enum HTMLElement {
     H5 ("h5", "#####"),
     H6 ("h6", "######"),
     P ("p", ""),
-    PRE ("pre", "   "),
+    PRE ("pre", "<"),
     BLOCKQUOTE ("blockquote", ">"),
     HR ("hr", "---"),
 
@@ -16,7 +16,8 @@ public enum HTMLElement {
     SUP ("sup", "^^"),
     SMALL ("small", "~~"),
     MARK ("mark", "[[", "]]"),
-    CODE ("code", "<<", ">>");
+    CODE ("code", "<<", ">>"),
+    UNDERLINE ("u", "__");
 
     private String tag;
     private String symbol, endSymbol;

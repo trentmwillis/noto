@@ -19,7 +19,8 @@ public class Html {
         HTMLElement.SUP,
         HTMLElement.SMALL,
         HTMLElement.MARK,
-        HTMLElement.CODE
+        HTMLElement.CODE,
+        HTMLElement.UNDERLINE
         //HTMLElement.BI,
         //HTMLElement.IB,
     };

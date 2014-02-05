@@ -15,17 +15,26 @@ public enum HTMLElement {
     SUB ("sub", "vv"),
     SUP ("sup", "^^"),
     SMALL ("small", "~~"),
-    MARK ("mark", "[["),
-    CODE ("code", "<<");
+    MARK ("mark", "[[", "]]"),
+    CODE ("code", "<<", ">>");
 
     private String tag;
-    private String symbol;
+    private String symbol, endSymbol;
 
     HTMLElement(String tag, String symbol) {
         this.tag = tag;
         this.symbol = symbol;
     }
 
+    HTMLElement(String tag, String symbol, String endSymbol) {
+        this.tag = tag;
+        this.symbol = symbol;
+        this.endSymbol = endSymbol;
+    }
+
     public String getTag() { return tag; }
     public String getSymbol() { return symbol; }
+    public String getEndSymbol() {
+        return (endSymbol != null) ? endSymbol : getSymbol();
+    }
 }

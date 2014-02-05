@@ -57,28 +57,42 @@ public class Interpreter {
                 output.append("<br>");
             }
 
-            if (currentLineType == HTMLElement.P) {
-                output.append(start + " ");
-            }
+            boolean firstOfPara = (currentLineType == HTMLElement.P);
+            String token;
 
             // Loop through each token
             while (scanner.hasNext()) {
-                String token = scanner.next();
+                if (firstOfPara) {
+                    token = start;
+                    firstOfPara = false;
+                } else {
+                    token = scanner.next();
+                }
 
                 HTMLElement inlineType = getInlineOpenType(token);
                 if (inlineType != null) {
                     openTag(inlineType.getTag());
+                    token = token.substring(2);
                 }
-
-                output.append(token + " ");
 
                 inlineType = getInlineCloseType(token);
                 if (inlineType != null) {
+                    if (token.endsWith(".")) {
+                        token = token.substring(0, token.length()-3) + ".";
+                    } else {
+                        token = token.substring(0,token.length()-2);
+                    }
+                    output.append(token);
                     closeLastTag();
+                    output.append(" ");
+                } else {
+                    output.append(token + " ");
                 }
             }
         } else {
             closeLastTag();
+            lastLineType = currentLineType;
+            currentLineType = null;
             lastLineEmpty = true;
         }
     }
@@ -105,7 +119,7 @@ public class Interpreter {
     }
     private static HTMLElement getInlineCloseType(String token) {
         for (HTMLElement element : Html.INLINE_ELEMENTS) {
-            if (token.endsWith(element.getSymbol())) {
+            if (token.endsWith(element.getEndSymbol()) || token.endsWith(element.getEndSymbol() + ".")) {
                 return element;
             }
         }

@@ -20,5 +20,9 @@ public class Html {
         HTMLElement.SMALL,
         HTMLElement.MARK,
         HTMLElement.CODE
+        //HTMLElement.BI,
+        //HTMLElement.IB,
     };
+
+    public static final String CSS = "String";
 }

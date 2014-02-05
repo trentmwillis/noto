@@ -1,0 +1,39 @@
+body {
+    font: 100%/1.5 "Helvetica", "Arial", sans-serif;
+    color: #444;
+}
+
+blockquote {
+    margin: 0 0 1em;
+    padding: 0.5em 1.5em;
+    border-left: 0.25em solid #DDD;
+    color: #777;
+    background: #EFEFEF;
+    font-style: italic;
+    position: relative;
+}
+
+blockquote:before {
+    content: '\201C';
+    font-size: 2em;
+    line-height: 46px;
+    display: block;
+    position: absolute;
+    height: 32px;
+    width: 32px;
+    background: #DDD;
+    border-radius: 99px;
+    text-indent: 6px;
+    left: -0.5em;
+}
+
+mark {
+    background: #E0F268;
+    padding: 0.1em 0.25em;
+    border-radius: 0.25em;
+}
+
+#content {
+    max-width: 960px;
+    margin: 2em auto;
+}

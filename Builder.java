@@ -27,7 +27,7 @@ public class Builder {
     private File output;
     private File input;
 
-    private String overhead = "<html><head><meta charset='utf-8'><title>Noto Note</title></head><body>";
+    private String overhead = "<html><head><meta charset='utf-8'><title>Noto Note</title><link rel='stylesheet' href='styles.css'></head><body><div id='content'>";
 
     protected Builder() { /* Nothing */ }
 
@@ -59,7 +59,7 @@ public class Builder {
 
                 writer.append(Interpreter.getInstance().getOutput());
 
-                writer.append("</body>");
+                writer.append("</div></body>");
                 writer.flush();
                 writer.close();
             } catch (IOException e) {

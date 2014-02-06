@@ -14,8 +14,6 @@ public class Builder {
     private File output;
     private File input;
 
-    private String overhead = "<html><head><meta charset='utf-8'><title>Noto Note</title><link rel='stylesheet' href='styles.css'><link rel='stylesheet' href='http://yandex.st/highlightjs/8.0/styles/default.min.css'></head><body><div id='content'>";
-
     protected Builder() { /* Nothing */ }
 
     public static Builder getInstance() {
@@ -27,26 +25,35 @@ public class Builder {
 
     public void build(File input) {
         if (input != null) {
-            String[] nameParts = input.getName().split("\\.");
-            System.out.println("Building file: " + nameParts[0]);
-            File htmlFile = new File(nameParts[0] + ".html");
-
             try {
+                // Create HTML file
+                String[] nameParts = input.getName().split("\\.");
+                System.out.println("Building file: " + nameParts[0]);
+                File htmlFile = new File(nameParts[0] + ".html");
                 htmlFile.createNewFile();
-                FileWriter writer = new FileWriter(htmlFile);
-                writer.write(overhead);
 
+                // Create a writer to the HTML file
+                FileWriter writer = new FileWriter(htmlFile);
+
+                // Write the opening information
+                writer.write(Html.HEAD);
+
+                // Reset the Interpreter from any prior builds
                 Interpreter.getInstance().reset();
 
-                // Loop through each line in the File
+                // Loop through each line in the input File and interpret the input to HTML
                 Scanner fileScanner = new Scanner(input);
                 while (fileScanner.hasNextLine()) {
                     Interpreter.getInstance().interpret(fileScanner.nextLine());
                 }
 
+                // Write the interpreted information to the document
                 writer.append(Interpreter.getInstance().getOutput());
 
-                writer.append("</div><script src='http://yandex.st/highlightjs/8.0/highlight.min.js'></script><script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js'></script><script>$(document).ready(function() {$('pre').each(function(i, e) {hljs.highlightBlock(e)});});</script></body>");
+                // Write the closing information
+                writer.append(Html.END);
+
+                // Flush and close the write stream
                 writer.flush();
                 writer.close();
             } catch (IOException e) {

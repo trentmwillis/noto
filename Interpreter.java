@@ -65,7 +65,9 @@ public class Interpreter {
             // If the line is a PRE line, we just want to output the entire line
             if (currentLineType == HTMLElement.PRE) {
                 scanner.useDelimiter("\n");
-                output.append(scanner.next());
+                if (scanner.hasNext()) {
+                    output.append(scanner.next());
+                }
                 scanner.reset();
             } else {
                 // Loop through each token
@@ -107,6 +109,10 @@ public class Interpreter {
     }
 
     /* Private Methods */
+
+    private static boolean checkForDiagram(String token) {
+        
+    }
 
     private static HTMLElement getBlockType(String token) {
         for  (HTMLElement element : Html.BLOCK_ELEMENTS) {

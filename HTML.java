@@ -9,7 +9,8 @@ public class Html {
         HTMLElement.P,
         HTMLElement.PRE,
         HTMLElement.BLOCKQUOTE,
-        HTMLElement.HR
+        HTMLElement.HR,
+        HTMLElement.UL
     };
 
     public static final HTMLElement[] INLINE_ELEMENTS = {
@@ -20,9 +21,10 @@ public class Html {
         HTMLElement.SMALL,
         HTMLElement.MARK,
         HTMLElement.CODE,
-        HTMLElement.UNDERLINE
-        //HTMLElement.BI,
-        //HTMLElement.IB,
+        HTMLElement.UNDERLINE,
+        HTMLElement.BI,
+        HTMLElement.IB,
+        HTMLElement.INLINEQUOTE
     };
 
     public static final String HEAD = "<html><head><meta charset='utf-8'><title>Noto Note</title><link rel='stylesheet' href='styles.css'><link rel='stylesheet' href='http://yandex.st/highlightjs/8.0/styles/default.min.css'></head><body><div id='content'>";

@@ -6,7 +6,7 @@ import java.util.Scanner;
 public class Interpreter {
     private static Interpreter instance;
 
-    private static Stack<String> tags = new Stack<String>();
+    private static Stack<HTMLElement> tags = new Stack<HTMLElement>();
     private static StringBuilder output;
     private static Scanner scanner;
     private static boolean lastLineEmpty = false;
@@ -54,9 +54,13 @@ public class Interpreter {
             // Otherwise, it was simply a line-break
             if (currentLineType != lastLineType) {
                 closeLastTag();
-                openTag(currentLineType.getTag());
+                openTag(currentLineType);
             } else {
                 output.append("<br>");
+            }
+
+            if (currentLineType == HTMLElement.UL) {
+                openTag(HTMLElement.LI);
             }
 
             boolean firstOfPara = (currentLineType == HTMLElement.P);
@@ -81,16 +85,18 @@ public class Interpreter {
 
                     HTMLElement inlineType = getInlineOpenType(token);
                     if (inlineType != null) {
-                        openTag(inlineType.getTag());
-                        token = token.substring(2);
+                        openTag(inlineType);
+
+                        token = token.substring(inlineType.getSymbol().length());
                     }
 
                     inlineType = getInlineCloseType(token);
                     if (inlineType != null) {
+                        int offset = token.length() - inlineType.getEndSymbol().length();
                         if (token.endsWith(".")) {
-                            token = token.substring(0, token.length()-3) + ".";
+                            token = token.substring(0, offset-1) + ".";
                         } else {
-                            token = token.substring(0,token.length()-2);
+                            token = token.substring(0, offset);
                         }
                         output.append(token);
                         closeLastTag();
@@ -98,6 +104,10 @@ public class Interpreter {
                     } else {
                         output.append(token + " ");
                     }
+                }
+
+                if (currentLineType == HTMLElement.UL) {
+                    closeLastTag();
                 }
             }
         } else {
@@ -111,7 +121,7 @@ public class Interpreter {
     /* Private Methods */
 
     private static boolean checkForDiagram(String token) {
-        
+        return false;
     }
 
     private static HTMLElement getBlockType(String token) {
@@ -141,13 +151,13 @@ public class Interpreter {
         return null;
     }
 
-    private static void openTag(String tag) {
+    private static void openTag(HTMLElement tag) {
         tags.push(tag);
-        output.append("<" + tag + ">");
+        output.append(tag.getTag());
     }
 
-    private static void closeTag(String tag) {
-        output.append("</" + tag + ">");
+    private static void closeTag(HTMLElement tag) {
+        output.append(tag.getCloseTag());
     }
 
     private static void closeLastTag() {

@@ -1,41 +1,25 @@
 public enum DiagramType {
-    H1 ("h1", "#"),
-    H2 ("h2", "##"),
-    H3 ("h3", "###"),
-    H4 ("h4", "####"),
-    H5 ("h5", "#####"),
-    H6 ("h6", "######"),
-    P ("p", ""),
-    PRE ("pre", "<"),
-    BLOCKQUOTE ("blockquote", ">"),
-    HR ("hr", "---"),
+    TREE ("tree"),
+    FLOWCHART ("flowchart", "fc"),
+    NETWORK ("network", "nw");
 
-    STRONG ("strong", "!!"),
-    EM ("em", "**"),
-    SUB ("sub", "vv"),
-    SUP ("sup", "^^"),
-    SMALL ("small", "~~"),
-    MARK ("mark", "[[", "]]"),
-    CODE ("code", "<<", ">>"),
-    UNDERLINE ("u", "__");
+    private String[] definitions;
 
-    private String tag;
-    private String symbol, endSymbol;
-
-    HTMLElement(String tag, String symbol) {
-        this.tag = tag;
-        this.symbol = symbol;
+    DiagramType(String... definitions) {
+        this.definitions = definitions;
     }
 
-    HTMLElement(String tag, String symbol, String endSymbol) {
-        this.tag = tag;
-        this.symbol = symbol;
-        this.endSymbol = endSymbol;
-    }
+    public String[] getDefinitions() { return definitions; }
 
-    public String getTag() { return tag; }
-    public String getSymbol() { return symbol; }
-    public String getEndSymbol() {
-        return (endSymbol != null) ? endSymbol : getSymbol();
+    public boolean isDiagramDeclaration(String token) {
+        if (token.charAt(0) != '_') { return false; }
+        for (DiagramType type : DiagramType.values()) {
+            for (int i=0; i<type.definitions.length; i++) {
+                if (token.equals("_" + type.definitions[i])) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

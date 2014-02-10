@@ -33,6 +33,10 @@ mark {
     border-radius: 0.25em;
 }
 
+pre {
+    border-left: 0.25rem solid #DDD;
+}
+
 #content {
     max-width: 960px;
     margin: 2em auto;

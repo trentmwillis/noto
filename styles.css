@@ -49,3 +49,20 @@ ul.circle {
 ul.square {
     list-style: square;
 }
+
+hr {
+    border: none;
+    border-top: 1px solid #CCC;
+    margin: 2em 0em;
+}
+
+hr.double {
+    height: 2px;
+    border-bottom: 1px dotted #CCC;
+    border-top-color: #AAA;
+}
+
+u {
+    text-decoration: none;
+    border-bottom: 1px dotted #555;
+}

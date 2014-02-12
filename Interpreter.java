@@ -54,15 +54,19 @@ public class Interpreter {
             // Otherwise, it was simply a line-break
             if (currentLineType != lastLineType) {
                 closeLastTag();
+
+                if (isListLine(lastLineType)) {
+                    closeLastTag();
+                }
+
                 openTag(currentLineType);
+            } else if (isListLine(lastLineType)) {
+                closeLastTag();
             } else {
                 output.append("<br>");
             }
 
-            if (currentLineType == HTMLElement.UL ||
-                currentLineType == HTMLElement.UL2 ||
-                currentLineType == HTMLElement.UL3 ||
-                currentLineType == HTMLElement.UL4) {
+            if (isListLine(currentLineType)) {
                 openTag(HTMLElement.LI);
             }
 
@@ -78,7 +82,7 @@ public class Interpreter {
                 scanner.reset();
             } else {
                 // Loop through each token
-                while (scanner.hasNext()) {
+                while (scanner.hasNext() || firstOfPara) {
                     if (firstOfPara) {
                         token = start;
                         firstOfPara = false;
@@ -108,10 +112,6 @@ public class Interpreter {
                         output.append(token + " ");
                     }
                 }
-
-                if (currentLineType == HTMLElement.UL) {
-                    closeLastTag();
-                }
             }
         } else {
             closeLastTag();
@@ -122,6 +122,14 @@ public class Interpreter {
     }
 
     /* Private Methods */
+
+    private static boolean isListLine(HTMLElement line) {
+        return line == HTMLElement.UL ||
+               line == HTMLElement.UL2 ||
+               line == HTMLElement.UL3 ||
+               line == HTMLElement.UL4 ||
+               line == HTMLElement.OL;
+    }
 
     private static boolean checkForDiagram(String token) {
         return false;

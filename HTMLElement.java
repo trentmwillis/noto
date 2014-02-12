@@ -9,6 +9,7 @@ public enum HTMLElement {
     PRE ("<pre>", "</pre>", "<"),
     BLOCKQUOTE ("<blockquote>", "</blockquote>", ">"),
     HR ("<hr>", "", "---"),
+    HRD ("<hr class='double'>", "", "==="),
 
     STRONG ("<strong>", "</strong>", "!!"),
     EM ("<em>", "</em>", "**"),
@@ -21,11 +22,12 @@ public enum HTMLElement {
     BI ("<strong><em>", "</em></strong>", "!*", "*!"),
     IB ("<em><strong>", "</strong></em>", "*!", "!*"),
 
+    OL ("<ol>", "</ol>", "a."),
     UL ("<ul>", "</ul>", "*"),
     UL2 ("<ul class='square'>", "</ul>", "-"),
     UL3 ("<ul class='square'>", "</ul>", "+"),
     UL4 ("<ul class='circle'>", "</ul>", "o"),
-    LI ("<li>", "</li>", "*"),
+    LI ("<li>", "</li>", ""),
 
     INLINEQUOTE ("<q>", "</q>", "\"");
 

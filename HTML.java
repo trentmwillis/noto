@@ -10,10 +10,12 @@ public class Html {
         HTMLElement.PRE,
         HTMLElement.BLOCKQUOTE,
         HTMLElement.HR,
+        HTMLElement.HRD,
         HTMLElement.UL,
         HTMLElement.UL2,
         HTMLElement.UL3,
-        HTMLElement.UL4
+        HTMLElement.UL4,
+        HTMLElement.OL
     };
 
     public static final HTMLElement[] INLINE_ELEMENTS = {

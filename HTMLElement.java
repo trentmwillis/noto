@@ -22,6 +22,9 @@ public enum HTMLElement {
     IB ("<em><strong>", "</strong></em>", "*!", "!*"),
 
     UL ("<ul>", "</ul>", "*"),
+    UL2 ("<ul class='square'>", "</ul>", "-"),
+    UL3 ("<ul class='square'>", "</ul>", "+"),
+    UL4 ("<ul class='circle'>", "</ul>", "o"),
     LI ("<li>", "</li>", "*"),
 
     INLINEQUOTE ("<q>", "</q>", "\"");

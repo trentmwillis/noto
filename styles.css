@@ -41,3 +41,11 @@ pre {
     max-width: 960px;
     margin: 2em auto;
 }
+
+ul.circle {
+    list-style: circle;
+}
+
+ul.square {
+    list-style: square;
+}

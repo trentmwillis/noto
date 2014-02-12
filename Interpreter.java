@@ -59,7 +59,10 @@ public class Interpreter {
                 output.append("<br>");
             }
 
-            if (currentLineType == HTMLElement.UL) {
+            if (currentLineType == HTMLElement.UL ||
+                currentLineType == HTMLElement.UL2 ||
+                currentLineType == HTMLElement.UL3 ||
+                currentLineType == HTMLElement.UL4) {
                 openTag(HTMLElement.LI);
             }
 

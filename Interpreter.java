@@ -71,6 +71,8 @@ public class Interpreter {
             }
 
             boolean firstOfPara = (currentLineType == HTMLElement.P);
+            boolean inList = false;
+            boolean inTable = false;
             String token;
 
             // If the line is a PRE line, we just want to output the entire line
@@ -128,7 +130,9 @@ public class Interpreter {
                line == HTMLElement.UL2 ||
                line == HTMLElement.UL3 ||
                line == HTMLElement.UL4 ||
-               line == HTMLElement.OL;
+               line == HTMLElement.OL ||
+               line == HTMLElement.OL2 ||
+               line == HTMLElement.OL3;
     }
 
     private static boolean checkForDiagram(String token) {

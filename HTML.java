@@ -1,12 +1,12 @@
 public class Html {
     public static final HTMLElement[] BLOCK_ELEMENTS = {
+        HTMLElement.P,
         HTMLElement.H1,
         HTMLElement.H2,
         HTMLElement.H3,
         HTMLElement.H4,
         HTMLElement.H5,
         HTMLElement.H6,
-        HTMLElement.P,
         HTMLElement.PRE,
         HTMLElement.BLOCKQUOTE,
         HTMLElement.HR,
@@ -15,7 +15,12 @@ public class Html {
         HTMLElement.UL2,
         HTMLElement.UL3,
         HTMLElement.UL4,
-        HTMLElement.OL
+        HTMLElement.OL,
+        HTMLElement.OL2,
+        HTMLElement.OL3,
+        HTMLElement.TABLE,
+        HTMLElement.TRH,
+        HTMLElement.TR
     };
 
     public static final HTMLElement[] INLINE_ELEMENTS = {
@@ -29,7 +34,9 @@ public class Html {
         HTMLElement.UNDERLINE,
         HTMLElement.BI,
         HTMLElement.IB,
-        HTMLElement.INLINEQUOTE
+        HTMLElement.INLINEQUOTE,
+        HTMLElement.TH,
+        HTMLElement.TD
     };
 
     public static final String HEAD = "<html><head><meta charset='utf-8'><title>Noto Note</title><link rel='stylesheet' href='styles.css'><link rel='stylesheet' href='http://yandex.st/highlightjs/8.0/styles/default.min.css'></head><body><div id='content'>";

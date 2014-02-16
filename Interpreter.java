@@ -16,6 +16,8 @@ public class Interpreter {
     private static HTMLElement currentLineType;
     private static HTMLElement lastLineType;
 
+    private static boolean buildingDiagram = false;
+
     protected Interpreter() { /* Nothing */ }
 
     /* Public Methods */
@@ -50,8 +52,33 @@ public class Interpreter {
         // Check if line is empty
         if (scanner.hasNext()) {
 
+
+
             // Set the "start" to the first token in the line
             String start = scanner.next();
+
+            // Check if the line starts a diagram
+            if (isDiagramDeclaration(start) || buildingDiagram) {
+
+                // If the parser isn't currently building, start a new diagram
+                if (!Parser.getInstance().isBuilding()) {
+                    Parser.getInstance().newDiagram(getDiagramType(start));
+                }
+
+                // Otherwise...
+                else {
+                    // Add data to the diagram being built
+                    Parser.getInstance().addData(line);
+
+                    // See if the data just passed was the final line
+                    if (Parser.getInstance().complete()) {
+                        output.append("<img src='" + Parser.testing() + "'>");
+                        buildingDiagram = false;
+                    }
+                }
+
+                return;
+            }
 
             // Update the last line type
             lastLineType = currentLineType;
@@ -194,8 +221,23 @@ public class Interpreter {
                line == HTMLElement.OL3;
     }
 
-    private static boolean checkForDiagram(String token) {
+    private static boolean isDiagramDeclaration(String token) {
+        for (DiagramType type : Diagram.TYPES) {
+            if (type.isDiagramDeclaration(token)) {
+                buildingDiagram = true;
+                return true;
+            }
+        }
         return false;
+    }
+
+    private static DiagramType getDiagramType(String token) {
+        for (DiagramType type : Diagram.TYPES) {
+            if (type.isDiagramDeclaration(token)) {
+                return type;
+            }
+        }
+        return null;
     }
 
     private static HTMLElement getBlockType(String token) {
@@ -216,6 +258,7 @@ public class Interpreter {
         }
         return null;
     }
+
     private static HTMLElement getInlineCloseType(String token) {
         for (HTMLElement element : Html.INLINE_ELEMENTS) {
             if (token.endsWith(element.getEndSymbol()) || token.endsWith(element.getEndSymbol() + ".")) {

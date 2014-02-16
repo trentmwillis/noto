@@ -10,6 +10,9 @@ public class Interpreter {
     private static StringBuilder output;
     private static Scanner scanner;
     private static boolean lastLineEmpty = false;
+    private static boolean inTable = false;
+    private static boolean inOrderedList = false;
+
     private static HTMLElement currentLineType;
     private static HTMLElement lastLineType;
 
@@ -44,36 +47,58 @@ public class Interpreter {
         // Check beginning of each word for tags
         scanner = new Scanner(line);
 
-        // Check beginning of line for block style
+        // Check if line is empty
         if (scanner.hasNext()) {
+
+            // Set the "start" to the first token in the line
             String start = scanner.next();
+
+            // Update the last line type
             lastLineType = currentLineType;
+
+            // Get the current line's type by passing the start token
             currentLineType = getBlockType(start);
 
-            // If the LineType changed, then we know the last block closed
-            // Otherwise, it was simply a line-break
-            if (currentLineType != lastLineType) {
+            // Make sure lastLineEmpty is set to false if there was a last line
+            if (lastLineEmpty) {
+                lastLineEmpty = false;
+            }
+
+            // If the LineType changed, then we should close the last block
+            if (currentLineType != lastLineType && !inOrderedList) {
                 closeLastTag();
 
+                // Also, if the last line was a list close the item
                 if (isListLine(lastLineType)) {
                     closeLastTag();
                 }
 
+
+                if (currentLineType == HTMLElement.TABLE) {
+                    inTable = (inTable) ? false : true;
+                    if (!inTable) {
+                        closeLastTag();
+                    }
+                }
+
+                // Finally, open the new element tag
                 openTag(currentLineType);
+            } else if (inOrderedList) {
+                currentLineType = HTMLElement.OL;
             } else if (isListLine(lastLineType)) {
                 closeLastTag();
             } else {
                 output.append("<br>");
             }
 
+            if (currentLineType == HTMLElement.OL || currentLineType == HTMLElement.OL2 || currentLineType == HTMLElement.OL3) {
+                inOrderedList = true;
+            }
+
+            // If this is a list line, open up a new item
             if (isListLine(currentLineType)) {
                 openTag(HTMLElement.LI);
             }
-
-            boolean firstOfPara = (currentLineType == HTMLElement.P);
-            boolean inList = false;
-            boolean inTable = false;
-            String token;
 
             // If the line is a PRE line, we just want to output the entire line
             if (currentLineType == HTMLElement.PRE) {
@@ -82,41 +107,75 @@ public class Interpreter {
                     output.append(scanner.next());
                 }
                 scanner.reset();
-            } else {
+            }
+
+            // Else, just parse the line normally
+            else {
+                boolean firstOfPara = (currentLineType == HTMLElement.P);
+                String token;
+
                 // Loop through each token
                 while (scanner.hasNext() || firstOfPara) {
+
+                    // If we are on the first token of a paragraph line, we need to output that
                     if (firstOfPara) {
                         token = start;
                         firstOfPara = false;
-                    } else {
+                    }
+
+                    // Otherwise, the token is just set to the next value from the scanner
+                    else {
                         token = scanner.next();
                     }
 
+                    // Check if this token has any opening inline style
                     HTMLElement inlineType = getInlineOpenType(token);
                     if (inlineType != null) {
+                        // Open the inline style
                         openTag(inlineType);
 
+                        //Remove the symbol from the front of the token
                         token = token.substring(inlineType.getSymbol().length());
                     }
 
+                    // Check if this token has any closing inline styles
                     inlineType = getInlineCloseType(token);
                     if (inlineType != null) {
                         int offset = token.length() - inlineType.getEndSymbol().length();
+                        // Check if the token ends with a period
+                        // and chop of the symbol as appropriate
                         if (token.endsWith(".")) {
                             token = token.substring(0, offset-1) + ".";
                         } else {
                             token = token.substring(0, offset);
                         }
+
+                        // Output the token
                         output.append(token);
+
+                        // Close the inline style
                         closeLastTag();
+
+                        // Add the space back
                         output.append(" ");
                     } else {
+                        // Output the token and add the space back
                         output.append(token + " ");
                     }
                 }
             }
-        } else {
-            closeLastTag();
+        } 
+
+        // An empty line, so close the last block if the last line was part of a block
+        else {
+            if (!lastLineEmpty) {
+                closeLastTag();
+            }
+
+            if (inOrderedList) {
+                inOrderedList = false;
+            }
+
             lastLineType = currentLineType;
             currentLineType = null;
             lastLineEmpty = true;

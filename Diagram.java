@@ -170,11 +170,19 @@ class Tree extends Diagram {
         return ++max;
     }
 
+    /* Drawing Methods */
+
+    private int top = 0;
+    private int indent = 50;
+    private int height = 50;
+    private int halfHeight = height / 2;
+    private int nudge = 10;
+
     protected void draw() {
         // Width is equal to the widest an image can be
         int width = Html.PAGE_WIDTH;
         // Set height equal to the maximum depth level * a constant
-        int height = nodes.size() * 50;
+        int height = (nodes.size() + 1) * 60;
 
         // Create a new image
         image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
@@ -187,29 +195,33 @@ class Tree extends Diagram {
         // Set image color
         g.setColor(Color.BLACK);
 
+        // Reset the 'top' variable
+        top = 0;
+
         // Recursive tree drawing...
-        drawNode(root, g, 0);
+        drawNode(root, g, 0, 0);
     }
 
-    private int top = 0;
-
-    private void drawNode(TreeNode node, Graphics g, int left) {
+    private void drawNode(TreeNode node, Graphics g, int left, int lastTop) {
         // Calculate width of node
         int width = g.getFontMetrics().stringWidth(node.getValue()) + 20;
 
         // Draw node
-        g.drawString(node.getValue(), left + 5, top + 25);
-        g.drawOval(left, top, width, 50);
+        g.drawString(node.getValue(), left + nudge, top + halfHeight);
+        g.drawRect(left, top, width, height);
 
         // Draw connection lines
-        g.drawLine(left-50, top-25, left-50, top+25);
-        g.drawLine(left-50, top+25, left, top+25);
+        g.drawLine(left-indent, lastTop, left-indent, top+halfHeight);
+        g.drawLine(left-indent, top+halfHeight, left, top+halfHeight);
 
-        top += 50;
+        // Save the position of this node to draw connecting lines
+        lastTop = top;
+        // Bump the top variable up
+        top += height + nudge;
 
         // Iterate through the nodes children
         for (int i=0; i<node.getChildren().size(); i++) {
-            drawNode(node.getChildren().get(i), g, left + 50);
+            drawNode(node.getChildren().get(i), g, left + indent, lastTop);
         }
     }
 }

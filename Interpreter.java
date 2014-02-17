@@ -7,7 +7,7 @@ public class Interpreter {
     private static Interpreter instance;
 
     private static Stack<HTMLElement> tags = new Stack<HTMLElement>();
-    private static StringBuilder output;
+    private static StringBuilder output = new StringBuilder();
     private static Scanner scanner;
     private static boolean lastLineEmpty = false;
     private static boolean inTable = false;
@@ -31,8 +31,12 @@ public class Interpreter {
     }
 
     public static void reset() {
-        output = new StringBuilder();
+        output.setLength(0);
         tags.removeAllElements();
+        lastLineEmpty = false;
+        inTable = false;
+        inOrderedList = false;
+        buildingDiagram = false;
     }
 
     public static String getOutput() {

@@ -72,7 +72,7 @@ public class Interpreter {
 
                     // See if the data just passed was the final line
                     if (Parser.getInstance().complete()) {
-                        output.append("<img src='" + Parser.testing() + "'>");
+                        output.append("<img src='" + Parser.getImage() + "'>");
                         buildingDiagram = false;
                     }
                 }

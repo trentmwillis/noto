@@ -43,4 +43,6 @@ public class Html {
     public static final String END = "</div><script src='http://yandex.st/highlightjs/8.0/highlight.min.js'></script><script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js'></script><script>$(document).ready(function() {$('pre').each(function(i, e) {hljs.highlightBlock(e)});});</script></body>";
 
     public static final String CSS = "String";
+
+    public static final int PAGE_WIDTH = 960;
 }

@@ -91,26 +91,27 @@ public class Network extends Diagram {
         NetworkNode node;
         for (int i=0; i<nodes.size(); i++) {
             node = nodes.get(i);
-            node.width = g.getFontMetrics().stringWidth(node.getValue()) + 20;
-            node.height = 50;
+            node.x = 0;
+            node.y = 60 * i;
 
-            for (int j=0; j<node.getConnections().size(); j++) {
-                System.out.println("Node: " + node.getValue());
-            }
+            System.out.println("Node: " + node.getValue());
         }
+
+        nodes.get(0).draw(g);
     }
 }
 
 class NetworkNode {
     private String value;
     private ArrayList<NetworkNode> connections;
-    public width, height;
-    public x, y;
+    private boolean drawn;
+    private int width, height;
+    public int x, y;
 
     public NetworkNode(String value) {
         this.value = value;
+        this.drawn = false;
         this.connections = new ArrayList<NetworkNode>();
-        width = 
     }
 
     public String getValue() {
@@ -123,5 +124,28 @@ class NetworkNode {
 
     public ArrayList<NetworkNode> getConnections() {
         return connections;
+    }
+
+    public boolean isDrawn() {
+        return drawn;
+    }
+
+    public void draw(Graphics g) {
+        width = g.getFontMetrics().stringWidth(value) + 20;
+        height = 50;
+
+        g.drawString(value, x + 10, y + height / 2);
+        g.drawRect(x, y, width, height);
+
+        drawn = true;
+
+        // Draw connection lines
+        for (int i=0; i<connections.size(); i++) {
+            NetworkNode node = connections.get(i);
+            if (!node.isDrawn()) {
+                node.draw(g);
+            }
+            // g.drawLine(x, y, connections[i].x, connections[i].y);
+        }
     }
 }

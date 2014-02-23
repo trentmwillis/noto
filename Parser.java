@@ -14,10 +14,18 @@ public class Parser {
         return instance;
     }
 
+    public static void reset() {
+        building = null;
+        isBuilding = false;
+        complete = false;
+    }
+
     public static void newDiagram(DiagramType type) {
         // Use reflection?
         switch (type) {
             case TREE : building = new Tree();
+                        break;
+            case NETWORK : building = new Network();
                         break;
             default :   building = new Tree();
         }

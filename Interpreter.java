@@ -62,11 +62,14 @@ public class Interpreter {
             String start = scanner.next();
 
             // Check if the line starts a diagram
-            if (isDiagramDeclaration(start) || buildingDiagram) {
+            DiagramType diaType;
+            if ((diaType = isDiagramDeclaration(start)) != null || buildingDiagram) {
 
                 // If the parser isn't currently building, start a new diagram
                 if (!Parser.getInstance().isBuilding()) {
-                    Parser.getInstance().newDiagram(getDiagramType(start));
+                    buildingDiagram = true;
+                    Parser.getInstance().reset();
+                    Parser.getInstance().newDiagram(diaType);
                 }
 
                 // Otherwise...
@@ -225,20 +228,13 @@ public class Interpreter {
                line == HTMLElement.OL3;
     }
 
-    private static boolean isDiagramDeclaration(String token) {
+    private static DiagramType isDiagramDeclaration(String token) {
         for (DiagramType type : Diagram.TYPES) {
-            if (type.isDiagramDeclaration(token)) {
-                buildingDiagram = true;
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static DiagramType getDiagramType(String token) {
-        for (DiagramType type : Diagram.TYPES) {
-            if (type.isDiagramDeclaration(token)) {
-                return type;
+            for (int i=0; i<type.getDefinitions().length; i++) {
+                if (token.equals("_" + type.getDefinitions()[i])) {
+                    System.out.println(type.getDefinitions()[i]);
+                    return type;
+                }
             }
         }
         return null;

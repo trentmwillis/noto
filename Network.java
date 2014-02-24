@@ -87,14 +87,11 @@ public class Network extends Diagram {
         // Reset the 'top' variable
         top = 0;
 
-        // Iterative network node drawing, O(n^2)...not good
         NetworkNode node;
         for (int i=0; i<nodes.size(); i++) {
             node = nodes.get(i);
             node.x = 0;
             node.y = 60 * i;
-
-            System.out.println("Node: " + node.getValue());
         }
 
         nodes.get(0).draw(g);
@@ -130,22 +127,57 @@ class NetworkNode {
         return drawn;
     }
 
+    public int getWidth() {
+        return width;
+    }
+    public int getHeight() {
+        return height;
+    }
+
     public void draw(Graphics g) {
+        draw(g, 0);
+    }
+
+    public void draw(Graphics g, int xOffset) {
         width = g.getFontMetrics().stringWidth(value) + 20;
         height = 50;
+
+        x = (Html.PAGE_WIDTH / 2) - (width / 2) + xOffset;
 
         g.drawString(value, x + 10, y + height / 2);
         g.drawRect(x, y, width, height);
 
         drawn = true;
 
+        int offset = Html.PAGE_WIDTH / connections.size();
+
         // Draw connection lines
         for (int i=0; i<connections.size(); i++) {
             NetworkNode node = connections.get(i);
             if (!node.isDrawn()) {
-                node.draw(g);
+                node.draw(g, offset * (connections.size()/-2 + i));
             }
-            // g.drawLine(x, y, connections[i].x, connections[i].y);
+
+            // Above
+            if (y+height < node.y) {
+                g.drawLine(x+width/2, y+height, node.x+node.getWidth()/2, node.y);
+            }
+            // Below
+            else if (y > node.y+node.getHeight()) {
+                g.drawLine(x+width/2, y, node.x+node.getWidth()/2, node.y+node.getHeight());
+            }
+            // Right
+            else if (x-width > node.x) {
+                g.drawLine(x, y+height/2, node.x+node.getWidth(), node.y+node.getHeight()/2);
+            }
+            // Left
+            else if (x+width < node.x) {
+                g.drawLine(x+width, y+height/2, node.x, node.y+node.getHeight()/2);
+            }
+            // Error
+            else {
+                System.err.println("Error: overlapping Network nodes.");
+            }
         }
     }
 }

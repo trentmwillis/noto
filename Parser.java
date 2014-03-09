@@ -29,6 +29,8 @@ public class Parser {
                         break;
             case VENN : building = new Venn();
                         break;
+            case PIE : building = new Pie();
+                        break;
             default :   building = new Tree();
         }
         isBuilding = true;

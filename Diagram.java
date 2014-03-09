@@ -20,7 +20,8 @@ public abstract class Diagram {
         DiagramType.TREE,
         DiagramType.FLOWCHART,
         DiagramType.NETWORK,
-        DiagramType.VENN
+        DiagramType.VENN,
+        DiagramType.PIE
     };
 
     protected static int globalID = 0;

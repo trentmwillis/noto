@@ -25,38 +25,45 @@ public class Pie extends Diagram {
         values.put(percentage, value);
     }
 
-    /* Drawing Methods */
-
-    private int top = 0;
-    private int indent = 50;
-    private int width, height;
-    private int halfHeight = height / 2;
-    private int nudge = 10;
-
     protected void draw() {
-        // Width is equal to the widest an image can be
-        width = Html.PAGE_WIDTH;
-        // Set height equal to the maximum depth level * a constant
-        height =  360;
+        int width = 500;
+        int height = 500;
+        int legendWidth = 200;
 
         // Create a new image
-        image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        Graphics g = image.getGraphics();
+        image = new BufferedImage(width + legendWidth, height, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = (Graphics2D) image.getGraphics();
 
         // Fill in background with white
         g.setColor(Color.WHITE);
-        g.fillRect(0, 0, width, height);
+        g.fillRect(0, 0, width + legendWidth, height);
 
-        // Set image color
-        g.setColor(Color.BLACK);
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        // Draw diagrams
+        // Draw sections
+        int startAngle = 0;
+        int endAngle = 0;
+        int x = width;
+        int y = 0;
+        double arcAngle = 0.0;
+
+        Color color = Color.RED;
+        g.setColor(color);
         for (int key : values.keySet()) {
+            startAngle = endAngle;
+            arcAngle = key * 3.6;
+            endAngle += arcAngle;
 
-        }
+            g.fillArc(0, 0, width, height, startAngle, (int) arcAngle);
 
-        for (String value : values.values()) {
+            // Draw label
+            y += 20;
+            g.fillRect(x,y,20,20);
+            g.setColor(Color.BLACK);
+            g.drawString(values.get(key), x + 20, y + 14);
 
+            color = color.darker();
+            g.setColor(color);
         }
     }
 

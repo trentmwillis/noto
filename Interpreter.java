@@ -56,14 +56,18 @@ public class Interpreter {
         // Check if line is empty
         if (scanner.hasNext()) {
 
-
-
             // Set the "start" to the first token in the line
             String start = scanner.next();
 
             // Check if the line starts a diagram
             DiagramType diaType;
             if ((diaType = isDiagramDeclaration(start)) != null || buildingDiagram) {
+                lastLineType = currentLineType;
+                currentLineType = HTMLElement.DIAGRAM;
+
+                if (lastLineType != HTMLElement.DIAGRAM) {
+                    closeLastTag();
+                }
 
                 // If the parser isn't currently building, start a new diagram
                 if (!Parser.getInstance().isBuilding()) {

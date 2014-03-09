@@ -36,7 +36,9 @@ public enum HTMLElement {
     TRH ("<tr>", "</tr>", "||"),
     TR ("<tr>", "</tr>", "|"),
     TH ("<th>", "</th>", "||"),
-    TD ("<td>", "</td>", "|");
+    TD ("<td>", "</td>", "|"),
+
+    DIAGRAM;
 
     /* Data Members */
 
@@ -44,6 +46,7 @@ public enum HTMLElement {
     private String symbol, endSymbol;
 
     /* Constructors */
+    HTMLElement() { }
 
     HTMLElement(String tag, String symbol) {
         this.tag = tag;

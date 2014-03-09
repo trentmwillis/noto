@@ -41,11 +41,9 @@ public class Venn extends Diagram {
         String value = dataScanner.next().trim();
 
         try {
-            System.out.println("Test change side " + value);
             onSide = Integer.parseInt(value);
             return;
         } catch (NumberFormatException e) {
-            System.out.println("Test add value " + value);
             dataScanner.reset();
 
             switch (onSide) {
@@ -61,22 +59,19 @@ public class Venn extends Diagram {
     }
 
     /* Drawing Methods */
-
-    private int top = 0;
-    private int indent = 50;
     private int width, height;
-    private int halfHeight = height / 2;
-    private int nudge = 10;
 
     protected void draw() {
         // Width is equal to the widest an image can be
         width = Html.PAGE_WIDTH;
         // Set height equal to the maximum depth level * a constant
         height =  Math.max(left.size(), right.size()) * 60;
+        height = (height > 500) ? height : 500;
 
         // Create a new image
         image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        Graphics g = image.getGraphics();
+        Graphics2D g = (Graphics2D) image.getGraphics();
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         // Fill in background with white
         g.setColor(Color.WHITE);
@@ -86,19 +81,29 @@ public class Venn extends Diagram {
         g.setColor(Color.BLACK);
 
         // Draw diagrams
+        g.setColor(new Color(255, 0, 0, 128));
         drawSection(g, left, 0);
-        drawSection(g, right, 2*width/3);
-        drawSection(g, middle, width/3);
+
+        g.setColor(new Color(0, 255, 0, 128));
+        drawSection(g, right, width/3);
+
+        g.setColor(new Color(0,0,0,0));
+        drawSection(g, middle, width/6);
     }
 
     private void drawSection(Graphics g, ArrayList<String> values, int xOffset) {
         // Draw oval container
-        g.drawOval(xOffset, 0, width / 3, height / 2);
+        g.fillOval(xOffset, 0, 2*width/3, height);
 
-        // Fill in values
+        // Draw each of the values in the middle of the container
         int count = 0;
+        int stringLength = 0;
+        int middle = xOffset + (2*width/6);
+        g.setColor(Color.BLACK);
+
         for (String value : values) {
-            g.drawString(value, xOffset, 20 * count++);
+            stringLength = g.getFontMetrics().stringWidth(value);
+            g.drawString(value, middle - stringLength/2, (20 * count++) + 50);
         }
     }
 }

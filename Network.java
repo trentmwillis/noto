@@ -75,7 +75,8 @@ public class Network extends Diagram {
 
         // Create a new image
         image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        Graphics g = image.getGraphics();
+        Graphics2D g = (Graphics2D) image.getGraphics();
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         // Fill in background with white
         g.setColor(Color.WHITE);

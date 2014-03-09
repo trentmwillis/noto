@@ -15,20 +15,20 @@ import javax.swing.undo.*;
 
 import java.util.Scanner;
 
-public class Tree extends Diagram {
+public class Flowchart extends Diagram {
     private boolean initialized;
-    private ArrayList<TreeNode> nodes;
-    private TreeNode root;
+    private ArrayList<FlowNode> nodes;
+    private FlowNode start;
 
 
-    public Tree() {
+    public Flowchart() {
         super();
-        nodes = new ArrayList<TreeNode>();
+        nodes = new ArrayList<FlowNode>();
         initialized = false;
     }
 
     public void addData(String data) {
-        // See if this is the first data being input to the tree
+        // See if this is the first data being input to the Flowchart
         if (!initialized) {
             firstData(data);
             return;
@@ -36,7 +36,7 @@ public class Tree extends Diagram {
 
         Scanner dataScanner = new Scanner(data);
         dataScanner.useDelimiter ("->");
-        TreeNode node = findNode(dataScanner.next().trim());
+        FlowNode node = findNode(dataScanner.next().trim());
 
         if (node != null) {
 
@@ -47,9 +47,9 @@ public class Tree extends Diagram {
             dataScanner.useDelimiter(",");
 
             // Initialize the children nodes
-            TreeNode childNode;
+            FlowNode childNode;
             while (dataScanner.hasNext()) {
-                childNode = new TreeNode(dataScanner.next().trim());
+                childNode = new FlowNode(dataScanner.next().trim());
                 nodes.add(childNode);
                 node.addChild(childNode);
             }
@@ -62,9 +62,9 @@ public class Tree extends Diagram {
         Scanner dataScanner = new Scanner(data);
         dataScanner.useDelimiter("->");
 
-        // Initialized the root node
-        TreeNode node = new TreeNode(dataScanner.next().trim());
-        root = node;
+        // Initialized the start node
+        FlowNode node = new FlowNode(dataScanner.next().trim());
+        start = node;
         nodes.add(node);
 
         // Skip past the '->'
@@ -74,9 +74,9 @@ public class Tree extends Diagram {
         dataScanner.useDelimiter(",");
 
         // Initialize the children nodes
-        TreeNode childNode;
+        FlowNode childNode;
         while (dataScanner.hasNext()) {
-            childNode = new TreeNode(dataScanner.next().trim());
+            childNode = new FlowNode(dataScanner.next().trim());
             nodes.add(childNode);
             node.addChild(childNode);
         }
@@ -84,8 +84,8 @@ public class Tree extends Diagram {
         initialized = true;
     }
 
-    private TreeNode findNode(String value) {
-        for (TreeNode node : nodes) {
+    private FlowNode findNode(String value) {
+        for (FlowNode node : nodes) {
             if (node.getValue().equals(value)) {
                 return node;
             }
@@ -94,10 +94,10 @@ public class Tree extends Diagram {
     }
 
     private int maxDepth() {
-        return maxDepth(root);
+        return maxDepth(start);
     }
 
-    private int maxDepth(TreeNode node) {
+    private int maxDepth(FlowNode node) {
         int max = 0;
         for (int i=0; i<node.getChildren().size(); i++) {
             int depth = maxDepth(node.getChildren().get(i));
@@ -137,11 +137,11 @@ public class Tree extends Diagram {
         // Reset the 'top' variable
         top = 0;
 
-        // Recursive tree drawing...
-        drawNode(root, g, 0, 0);
+        // Recursive Flowchart drawing...
+        drawNode(start, g, 0, 0);
     }
 
-    private void drawNode(TreeNode node, Graphics g, int left, int lastTop) {
+    private void drawNode(FlowNode node, Graphics g, int left, int lastTop) {
         // Calculate width of node
         int width = g.getFontMetrics().stringWidth(node.getValue()) + 20;
 
@@ -165,24 +165,24 @@ public class Tree extends Diagram {
     }
 }
 
-class TreeNode {
+class FlowNode {
     private String value;
-    private ArrayList<TreeNode> children;
+    private ArrayList<FlowNode> children;
 
-    public TreeNode(String value) {
+    public FlowNode(String value) {
         this.value = value;
-        children = new ArrayList<TreeNode>();
+        children = new ArrayList<FlowNode>();
     }
 
     public String getValue() {
         return value;
     }
 
-    public void addChild(TreeNode node) {
+    public void addChild(FlowNode node) {
         children.add(node);
     }
 
-    public ArrayList<TreeNode> getChildren() {
+    public ArrayList<FlowNode> getChildren() {
         return children;
     }
 }

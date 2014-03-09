@@ -19,7 +19,8 @@ public abstract class Diagram {
     public static final DiagramType[] TYPES = {
         DiagramType.TREE,
         DiagramType.FLOWCHART,
-        DiagramType.NETWORK
+        DiagramType.NETWORK,
+        DiagramType.VENN
     };
 
     protected static int globalID = 0;

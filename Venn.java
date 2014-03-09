@@ -38,14 +38,15 @@ public class Venn extends Diagram {
     public void addData(String data) {
         Scanner dataScanner = new Scanner(data);
         dataScanner.useDelimiter(":");
+        String value = dataScanner.next().trim();
 
-        // On a starting line for one of the parts
-        if (dataScanner.hasNext()) {
-            onSide = Interger.parseInt(dataScanner.next().trim());
-        } else {
+        try {
+            System.out.println("Test change side " + value);
+            onSide = Integer.parseInt(value);
+            return;
+        } catch (NumberFormatException e) {
+            System.out.println("Test add value " + value);
             dataScanner.reset();
-
-            String value = dataScanner.nextLine().trim();
 
             switch (onSide) {
                 case LEFT_SIDE   : left.add(value);
@@ -63,15 +64,15 @@ public class Venn extends Diagram {
 
     private int top = 0;
     private int indent = 50;
-    private int height = 50;
+    private int width, height;
     private int halfHeight = height / 2;
     private int nudge = 10;
 
     protected void draw() {
         // Width is equal to the widest an image can be
-        int width = Html.PAGE_WIDTH;
+        width = Html.PAGE_WIDTH;
         // Set height equal to the maximum depth level * a constant
-        int height = (nodes.size() + 1) * 60;
+        height =  Math.max(left.size(), right.size()) * 60;
 
         // Create a new image
         image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
@@ -84,16 +85,20 @@ public class Venn extends Diagram {
         // Set image color
         g.setColor(Color.BLACK);
 
-        // Reset the 'top' variable
-        top = 0;
+        // Draw diagrams
+        drawSection(g, left, 0);
+        drawSection(g, right, 2*width/3);
+        drawSection(g, middle, width/3);
+    }
 
-        NetworkNode node;
-        for (int i=0; i<nodes.size(); i++) {
-            node = nodes.get(i);
-            node.x = 0;
-            node.y = 60 * i;
+    private void drawSection(Graphics g, ArrayList<String> values, int xOffset) {
+        // Draw oval container
+        g.drawOval(xOffset, 0, width / 3, height / 2);
+
+        // Fill in values
+        int count = 0;
+        for (String value : values) {
+            g.drawString(value, xOffset, 20 * count++);
         }
-
-        nodes.get(0).draw(g);
     }
 }

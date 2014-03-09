@@ -1,7 +1,8 @@
 public enum DiagramType {
     TREE ("tree"),
     FLOWCHART ("flowchart", "fc"),
-    NETWORK ("network", "nw");
+    NETWORK ("network", "nw"),
+    VENN ("venn-2", "venn");
 
     private String[] definitions;
 

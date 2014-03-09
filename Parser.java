@@ -27,6 +27,8 @@ public class Parser {
                         break;
             case NETWORK : building = new Network();
                         break;
+            case VENN : building = new Venn();
+                        break;
             default :   building = new Tree();
         }
         isBuilding = true;

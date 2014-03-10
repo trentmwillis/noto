@@ -1,3 +1,5 @@
+import javax.swing.JOptionPane;
+
 public class Parser {
     private static Parser instance;
 
@@ -46,7 +48,11 @@ public class Parser {
         }
 
         if (building != null) {
-            building.addData(data);     // Add more data to the diagram
+            try {
+                building.addData(data);     // Add more data to the diagram
+            } catch (BuildException e) {
+                JOptionPane.showMessageDialog(null, e.toString(), "Build Error", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
 

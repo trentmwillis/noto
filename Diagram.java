@@ -52,7 +52,7 @@ public abstract class Diagram {
         }
     }
 
-    public abstract void addData(String data); // Adds data to diagram
+    public abstract void addData(String data) throws BuildException; // Adds data to diagram
 
     protected abstract void draw();   // Creates the actual image
 }

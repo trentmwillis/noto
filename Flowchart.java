@@ -16,9 +16,9 @@ import javax.swing.undo.*;
 import java.util.Scanner;
 
 public class Flowchart extends Diagram {
-    private boolean initialized;
     private ArrayList<FlowNode> nodes;
     private FlowNode start;
+    private boolean initialized;
 
 
     public Flowchart() {
@@ -28,60 +28,37 @@ public class Flowchart extends Diagram {
     }
 
     public void addData(String data) {
-        // See if this is the first data being input to the Flowchart
-        if (!initialized) {
-            firstData(data);
-            return;
-        }
-
         Scanner dataScanner = new Scanner(data);
         dataScanner.useDelimiter ("->");
-        FlowNode node = findNode(dataScanner.next().trim());
 
-        if (node != null) {
+        FlowNode node;
+        String value;
+        FlowNode lastNode = null;
 
-            // Skip past the '->'
-            dataScanner.useDelimiter(" ");
-            dataScanner.next();
-
-            dataScanner.useDelimiter(",");
-
-            // Initialize the children nodes
-            FlowNode childNode;
-            while (dataScanner.hasNext()) {
-                childNode = new FlowNode(dataScanner.next().trim());
-                nodes.add(childNode);
-                node.addChild(childNode);
-            }
-        } else {
-            System.err.println("Error: could not find node.");
+        if (!initialized) {
+            start = new FlowNode(dataScanner.next().trim());
+            nodes.add(start);
+            lastNode = start;
+            initialized = true;
         }
-    }
 
-    private void firstData(String data) {
-        Scanner dataScanner = new Scanner(data);
-        dataScanner.useDelimiter("->");
-
-        // Initialized the start node
-        FlowNode node = new FlowNode(dataScanner.next().trim());
-        start = node;
-        nodes.add(node);
-
-        // Skip past the '->'
-        dataScanner.useDelimiter(" ");
-        dataScanner.next();
-
-        dataScanner.useDelimiter(",");
-
-        // Initialize the children nodes
-        FlowNode childNode;
         while (dataScanner.hasNext()) {
-            childNode = new FlowNode(dataScanner.next().trim());
-            nodes.add(childNode);
-            node.addChild(childNode);
-        }
+            value = dataScanner.next().trim();
 
-        initialized = true;
+            node = findNode(value);
+
+            if (node == null) {
+                node = new FlowNode(value);
+                nodes.add(node);
+            }
+
+            if (lastNode != null) {
+                lastNode.addChild(node);
+                node.addParent(lastNode);
+            }
+
+            lastNode = node;
+        }
     }
 
     private FlowNode findNode(String value) {
@@ -110,17 +87,11 @@ public class Flowchart extends Diagram {
 
     /* Drawing Methods */
 
-    private int top = 0;
-    private int indent = 50;
-    private int height = 50;
-    private int halfHeight = height / 2;
-    private int nudge = 10;
-
     protected void draw() {
         // Width is equal to the widest an image can be
         int width = Html.PAGE_WIDTH;
         // Set height equal to the maximum depth level * a constant
-        int height = (nodes.size() + 1) * 60;
+        int height = (nodes.size() + 1) * 100;
 
         // Create a new image
         image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
@@ -134,44 +105,64 @@ public class Flowchart extends Diagram {
         // Set image color
         g.setColor(Color.BLACK);
 
-        // Reset the 'top' variable
-        top = 0;
-
-        // Recursive Flowchart drawing...
+        // Recursive flowchart drawing...
         drawNode(start, g, 0, 0);
     }
 
-    private void drawNode(FlowNode node, Graphics g, int left, int lastTop) {
+    private void drawNode(FlowNode node, Graphics g, int x, int y) {
         // Calculate width of node
-        int width = g.getFontMetrics().stringWidth(node.getValue()) + 20;
+        int nudgeX = 10;
+        int nudgeY = 20;
 
-        // Draw node
-        g.drawString(node.getValue(), left + nudge, top + halfHeight);
-        g.drawRect(left, top, width, height);
+        int columnWidth = 100;
+        int rowHeight = 100;
+
+        int width = g.getFontMetrics().stringWidth(node.getValue()) + 20;
+        int height = 50;
 
         // Draw connection lines
-        g.drawLine(left-indent, lastTop, left-indent, top+halfHeight);
-        g.drawLine(left-indent, top+halfHeight, left, top+halfHeight);
-
-        // Save the position of this node to draw connecting lines
-        lastTop = top;
-        // Bump the top variable up
-        top += height + nudge;
+        // g.drawLine(left-indent, lastTop, left-indent, top+halfHeight);
+        // g.drawLine(left-indent, top+halfHeight, left, top+halfHeight);
 
         // Iterate through the nodes children
+        int childX = x + columnWidth;
+        int childY = y;
+        int triX[] = new int[3];
+        int triY[] = new int[3];
         for (int i=0; i<node.getChildren().size(); i++) {
-            drawNode(node.getChildren().get(i), g, left + indent, lastTop);
+            drawNode(node.getChildren().get(i), g, childX, childY);
+            g.drawLine(x, y + height/2, childX-nudgeX, childY+height/2);
+
+            triX[0] = childX-nudgeX;
+            triX[1] = childX-nudgeX;
+            triX[2] = childX;
+
+            triY[0] = childY+(height/2)-5;
+            triY[1] = childY+(height/2)+5;
+            triY[2] = childY+(height/2);
+
+            g.fillPolygon(triX,triY,3);
+            childY += rowHeight;
         }
+
+        // Draw node
+        g.setColor(Color.WHITE);
+        g.fillRect(x, y, width, height);
+        g.setColor(Color.BLACK);
+        g.drawRect(x, y, width, height);
+        g.drawString(node.getValue(), x + nudgeX, y + nudgeY);
     }
 }
 
 class FlowNode {
     private String value;
     private ArrayList<FlowNode> children;
+    private ArrayList<FlowNode> parents;
 
     public FlowNode(String value) {
         this.value = value;
-        children = new ArrayList<FlowNode>();
+        this.children = new ArrayList<FlowNode>();
+        this.parents = new ArrayList<FlowNode>();
     }
 
     public String getValue() {
@@ -182,7 +173,15 @@ class FlowNode {
         children.add(node);
     }
 
+    public void addParent(FlowNode node) {
+        parents.add(node);
+    }
+
     public ArrayList<FlowNode> getChildren() {
         return children;
+    }
+
+    public ArrayList<FlowNode> getParents() {
+        return parents;
     }
 }

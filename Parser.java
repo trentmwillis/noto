@@ -31,6 +31,8 @@ public class Parser {
                         break;
             case PIE : building = new Pie();
                         break;
+            case FLOWCHART : building = new Flowchart();
+                             break;
             default :   building = new Tree();
         }
         isBuilding = true;

@@ -1,43 +1,53 @@
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.image.*;
-import java.awt.geom.*;
-import java.io.*;
-import java.lang.Math;
-import java.util.Random;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Stack;     // Used in Interpreter class
-import javax.imageio.*;
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.SwingUtilities;
-import javax.swing.undo.*;
-
 import java.util.Scanner;
 
-public class Venn extends Diagram {
-    private ArrayList<String> left;
-    private ArrayList<String> right;
-    private ArrayList<String> middle;
-    private int onSide;
+/*
+This class represents 2-circle Venn diagrams. While simple in
+theory, the drawing got a bit tricky.
+*/
 
+public class Venn extends Diagram {
+    // Constants to represent which side is currently
+    // adding data
     private static final int NO_SIDE     = 0;
     private static final int LEFT_SIDE   = 1;
     private static final int RIGHT_SIDE  = 2;
     private static final int MIDDLE_SIDE = 3;
 
+    // ArrayLists keep track of the values for each section
+    private ArrayList<String> left;
+    private ArrayList<String> right;
+    private ArrayList<String> middle;
 
+    // Keeps track of which side to add data to
+    private int onSide;
+
+    // Constructor
     public Venn() {
         super();
+
+        // Init data members
         left = new ArrayList<String>();
         right = new ArrayList<String>();
         middle = new ArrayList<String>();
-        int onSide = NO_SIDE;
+        onSide = NO_SIDE;
     }
 
-    public void addData(String data) {
+    // This method adds data given in the form:
+    // <side-number>:
+    // <value-1>
+    // ...
+    // <value-n>
+    public void addData(String data) throws BuildException {
+        // Set up the scanner for the data
         Scanner dataScanner = new Scanner(data);
         dataScanner.useDelimiter(":");
+
+        // Read in the value (each line will have only one value)
         String value = dataScanner.next().trim();
 
         try {
@@ -53,7 +63,7 @@ public class Venn extends Diagram {
                                    break;
                 case MIDDLE_SIDE : middle.add(value);
                                    break;
-                default          : System.err.println("Error: invalid Venn syntax");
+                default          : throw new BuildException("VENN DIAGRAM: invalid syntax");
             }
         }
     }
@@ -91,7 +101,7 @@ public class Venn extends Diagram {
         drawSection(g, middle, width/6);
     }
 
-    private void drawSection(Graphics g, ArrayList<String> values, int xOffset) {
+    private void drawSection(Graphics2D g, ArrayList<String> values, int xOffset) {
         // Draw oval container
         g.fillOval(xOffset, 0, 2*width/3, height);
 

@@ -5,3 +5,9 @@ public class BuildException extends Exception {
         super(message);
     }
 }
+
+class NotFoundException extends Exception {
+    public NotFoundException(String message) {
+        super(message);
+    }
+}

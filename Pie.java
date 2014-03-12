@@ -36,7 +36,7 @@ public class Pie extends Diagram {
         dataScanner.useDelimiter(":");
 
         try {
-            // Parse in the percentage value
+            // Read in the first value
             String value = dataScanner.next().trim();
 
             // Check if setting the title or color
@@ -52,6 +52,7 @@ public class Pie extends Diagram {
                 return;
             }
 
+            // Parse the percentage
             int percentage = Integer.parseInt(value);
 
             // Make sure percetages don't add to more than 100

@@ -1,52 +1,73 @@
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.image.*;
-import java.awt.geom.*;
-import java.io.*;
-import java.lang.Math;
-import java.util.Random;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Stack;     // Used in Interpreter class
-import javax.imageio.*;
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.SwingUtilities;
-import javax.swing.undo.*;
-
 import java.util.Scanner;
 
 public class Network extends Diagram {
     private ArrayList<NetworkNode> nodes;
+    private String title;
+    private Color color;
 
 
     public Network() {
         super();
         nodes = new ArrayList<NetworkNode>();
+        title = "";
+        color = Color.BLUE;
     }
 
-    public void addData(String data) {
+    public void addData(String data) throws BuildException {
         Scanner dataScanner = new Scanner(data);
         dataScanner.useDelimiter("--");
-
-        NetworkNode rootNode;
         String value = dataScanner.next().trim();
 
-        if ((rootNode = findNode(value)) == null) {
-            rootNode = new NetworkNode(value);
-            nodes.add(rootNode);
-        }
+        try {
+            // Check if setting the title or color
+            if (value.equals("title")) {
+                title = dataScanner.next().trim();
+                return;
+            } else if (value.equals("color")) {
+                String color = dataScanner.next().trim();
 
-        NetworkNode otherNode;
-        while (dataScanner.hasNext()) {
-            value = dataScanner.next().trim();
+                Field field = Class.forName("java.awt.Color").getField(color);
+                this.color = (Color)field.get(null);
 
-            if ((otherNode = findNode(value)) == null) {
-                otherNode = new NetworkNode(value);
-                nodes.add(otherNode);
+                return;
             }
 
-            otherNode.addConnection(rootNode);
-            rootNode.addConnection(otherNode);
+            NetworkNode rootNode;
+
+            if ((rootNode = findNode(value)) == null) {
+                rootNode = new NetworkNode(value);
+                nodes.add(rootNode);
+            }
+
+            NetworkNode otherNode;
+            while (dataScanner.hasNext()) {
+                value = dataScanner.next().trim();
+
+                if ((otherNode = findNode(value)) == null) {
+                    otherNode = new NetworkNode(value);
+                    nodes.add(otherNode);
+                }
+
+                otherNode.addConnection(rootNode);
+                rootNode.addConnection(otherNode);
+            }
+        }
+
+        // This will occur when they give a bad color name
+        catch (NoSuchFieldException e) {
+            throw new BuildException("VENN DIAGRAM: Unsupported color choice");
+        }
+
+        // This will occur when any other syntax violation occurs
+        catch (Exception e) {
+            throw new BuildException("PIE DIAGRAM: syntax error\n" + e.toString());
         }
     }
 
@@ -72,6 +93,7 @@ public class Network extends Diagram {
         int width = Html.PAGE_WIDTH;
         // Set height equal to the maximum depth level * a constant
         int height = (nodes.size() + 1) * 60;
+        height = (title != "") ? height + 100 : height;
 
         // Create a new image
         image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
@@ -83,7 +105,7 @@ public class Network extends Diagram {
         g.fillRect(0, 0, width, height);
 
         // Set image color
-        g.setColor(Color.BLACK);
+        g.setColor(color);
 
         // Reset the 'top' variable
         top = 0;
@@ -96,6 +118,12 @@ public class Network extends Diagram {
         }
 
         nodes.get(0).draw(g);
+
+        if (title != "") {
+            g.setColor(Color.BLACK);
+            g.setFont(g.getFont().deriveFont(24f));
+            g.drawString(title, width/2 - g.getFontMetrics().stringWidth(title)/2, height - 40);
+        }
     }
 }
 
@@ -135,18 +163,21 @@ class NetworkNode {
         return height;
     }
 
-    public void draw(Graphics g) {
+    public void draw(Graphics2D g) {
         draw(g, 0);
     }
 
-    public void draw(Graphics g, int xOffset) {
+    public void draw(Graphics2D g, int xOffset) {
         width = g.getFontMetrics().stringWidth(value) + 20;
         height = 50;
 
         x = (Html.PAGE_WIDTH / 2) - (width / 2) + xOffset;
 
+        g.fillRect(x, y, width, height);
+        Color color = g.getColor();
+        g.setColor(Color.BLACK);
         g.drawString(value, x + 10, y + height / 2);
-        g.drawRect(x, y, width, height);
+        g.setColor(color);
 
         drawn = true;
 

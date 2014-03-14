@@ -27,7 +27,13 @@ public class Venn extends Diagram {
     private ArrayList<String> left;
     private ArrayList<String> right;
     private ArrayList<String> middle;
+
+    // Title of the chart, if any
     private String title;
+
+    // Variable for the size of the diagram image
+    private int width;
+    private int height;
 
     // Keeps track of which side to add data to
     private int onSide;
@@ -81,9 +87,6 @@ public class Venn extends Diagram {
         }
     }
 
-    /* Drawing Methods */
-    private int width, height;
-
     protected void draw() {
         // Width is equal to the widest an image can be
         width = Html.PAGE_WIDTH;
@@ -99,6 +102,7 @@ public class Venn extends Diagram {
         g.setColor(Color.WHITE);
         g.fillRect(0, 0, width, height);
 
+        // Set up constants to draw the diagram
         int diameter = 500;
         int x1 = 0;
         int x2 = diameter - (diameter/3);
@@ -109,8 +113,8 @@ public class Venn extends Diagram {
         g.fillOval(x1, 0, diameter, diameter);
 
         // Draw middle content
-        g.setColor(Color.BLACK);
         int stringWidth;
+        g.setColor(Color.BLACK);
         y = (diameter/2) - (left.size()/2)*20;
         for (String value : left) {
             stringWidth = g.getFontMetrics().stringWidth(value);

@@ -62,12 +62,12 @@ public class Network extends Diagram {
 
         // This will occur when they give a bad color name
         catch (NoSuchFieldException e) {
-            throw new BuildException("VENN DIAGRAM: Unsupported color choice");
+            throw new BuildException("NETWORK DIAGRAM: Unsupported color choice");
         }
 
         // This will occur when any other syntax violation occurs
         catch (Exception e) {
-            throw new BuildException("PIE DIAGRAM: syntax error\n" + e.toString());
+            throw new BuildException("NETWORK DIAGRAM: syntax error\n" + e.toString());
         }
     }
 
@@ -92,7 +92,7 @@ public class Network extends Diagram {
         // Width is equal to the widest an image can be
         int width = Html.PAGE_WIDTH;
         // Set height equal to the maximum depth level * a constant
-        int height = (nodes.size() + 1) * 60;
+        int height = (nodes.size()/2 + 1) * 60;
         height = (title != "") ? height + 100 : height;
 
         // Create a new image
@@ -110,15 +110,27 @@ public class Network extends Diagram {
         // Reset the 'top' variable
         top = 0;
 
-        NetworkNode node;
+        NetworkNode node, lastNode = null;
+        int cx = width/2;
+        int cy = (title != "") ? (height-100)/2 : height/2;
+        double theta = 0;
+        double r = cy;
+        double dTheta = 360/nodes.size();
         for (int i=0; i<nodes.size(); i++) {
             node = nodes.get(i);
-            node.x = 0;
-            node.y = 60 * i;
+            node.initDimensions(g);
+            node.x = (int)Math.round(r * Math.cos(Math.toRadians(theta))) + cx - node.getWidth()/2;
+            node.y = (int)Math.round(r * Math.sin(Math.toRadians(theta))) + cy;
+            if (lastNode != null && Math.abs(node.y - lastNode.y) < lastNode.getHeight()) {
+                node.y = lastNode.y - lastNode.getHeight() - 10;
+            }
+            theta += dTheta;
+            lastNode = node;
         }
 
         nodes.get(0).draw(g);
 
+        // Draw the title if set
         if (title != "") {
             g.setColor(Color.BLACK);
             g.setFont(g.getFont().deriveFont(24f));
@@ -163,22 +175,12 @@ class NetworkNode {
         return height;
     }
 
-    public void draw(Graphics2D g) {
-        draw(g, 0);
+    public void initDimensions(Graphics2D g) {
+        width = g.getFontMetrics().stringWidth(value) + 20;
+        height = 30;
     }
 
-    public void draw(Graphics2D g, int xOffset) {
-        width = g.getFontMetrics().stringWidth(value) + 20;
-        height = 50;
-
-        x = (Html.PAGE_WIDTH / 2) - (width / 2) + xOffset;
-
-        g.fillRect(x, y, width, height);
-        Color color = g.getColor();
-        g.setColor(Color.BLACK);
-        g.drawString(value, x + 10, y + height / 2);
-        g.setColor(color);
-
+    public void draw(Graphics2D g) {
         drawn = true;
 
         int offset = Html.PAGE_WIDTH / connections.size();
@@ -187,29 +189,16 @@ class NetworkNode {
         for (int i=0; i<connections.size(); i++) {
             NetworkNode node = connections.get(i);
             if (!node.isDrawn()) {
-                node.draw(g, offset * (connections.size()/-2 + i));
+                node.draw(g);
             }
 
-            // Above
-            if (y+height < node.y) {
-                g.drawLine(x+width/2, y+height, node.x+node.getWidth()/2, node.y);
-            }
-            // Below
-            else if (y > node.y+node.getHeight()) {
-                g.drawLine(x+width/2, y, node.x+node.getWidth()/2, node.y+node.getHeight());
-            }
-            // Right
-            else if (x-width > node.x) {
-                g.drawLine(x, y+height/2, node.x+node.getWidth(), node.y+node.getHeight()/2);
-            }
-            // Left
-            else if (x+width < node.x) {
-                g.drawLine(x+width, y+height/2, node.x, node.y+node.getHeight()/2);
-            }
-            // Error
-            else {
-                System.err.println("Error: overlapping Network nodes.");
-            }
+            g.drawLine(x+width/2, y+height/2, node.x+node.getWidth()/2, node.y+node.getHeight()/2);
         }
+
+        g.fillRect(x, y, width, height);
+        Color color = g.getColor();
+        g.setColor(Color.BLACK);
+        g.drawString(value, x + 10, y + 20);
+        g.setColor(color);
     }
 }

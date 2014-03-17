@@ -65,6 +65,8 @@ public class Builder {
     public void buildAll(String directory) {
         File folder = new File(directory);
         File[] files = folder.listFiles();
+
+        // Loop through and build each file
         for (int i=0; i<files.length; i++) {
             int index = files[i].getName().lastIndexOf('.');
 
@@ -98,7 +100,7 @@ public class Builder {
             writer.write(Html.head(name));
 
             // Write the navigation info
-            writer.write("<p><a href'#'>Navigation</a></p>");
+            writer.write(Html.navigation(input.getParent(), name));
 
             // Reset the Interpreter from any prior builds
             Interpreter.getInstance().reset();

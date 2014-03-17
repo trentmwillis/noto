@@ -1,3 +1,5 @@
+import java.io.File;
+
 public class Html {
     public static final HTMLElement[] BLOCK_ELEMENTS = {
         HTMLElement.P,
@@ -41,6 +43,30 @@ public class Html {
 
     public static String head(String pageTitle) {
         return "<html><head><meta charset='utf-8'><title>" + pageTitle + "</title><link rel='stylesheet' href='css/styles.css'><link rel='stylesheet' href='http://yandex.st/highlightjs/8.0/styles/default.min.css'></head><body><div id='content'>";
+    }
+
+    public static String navigation(String directory, String currentFile) {
+        File folder = new File(directory);
+        File[] files = folder.listFiles();
+        StringBuilder navigation = new StringBuilder("<ul id='nav'>");
+
+        // Loop through and add each .txt file to the navigation
+        for (int i=0; i<files.length; i++) {
+            int index = files[i].getName().lastIndexOf('.');
+            // Check to make sure it is a .txt file
+            if (files[i].isFile() && files[i].getName().substring(index+1).equals("txt")) {
+                String name = files[i].getName().substring(0, index);
+                if (name.equals(currentFile)) {
+                    navigation.append("<li class='active'><a href='" + name + ".html'>" + name + "</a></li>");
+                } else {
+                    navigation.append("<li><a href='" + name + ".html'>" + name + "</a></li>");
+                }   
+            }
+        }
+
+        navigation.append("</ul>");
+
+        return navigation.toString();
     }
 
     public static final String HEAD = "<html><head><meta charset='utf-8'><title>Noto Note</title><link rel='stylesheet' href='styles.css'><link rel='stylesheet' href='http://yandex.st/highlightjs/8.0/styles/default.min.css'></head><body><div id='content'>";

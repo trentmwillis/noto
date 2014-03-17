@@ -1,64 +1,92 @@
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.image.*;
-import java.awt.geom.*;
-import java.io.*;
-import java.lang.Math;
-import java.util.Random;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Stack;     // Used in Interpreter class
-import javax.imageio.*;
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.SwingUtilities;
-import javax.swing.undo.*;
-
 import java.util.Scanner;
+
+/*
+This class represents flowcharts.
+*/
 
 public class Flowchart extends Diagram {
     private ArrayList<FlowNode> nodes;
     private FlowNode start;
     private boolean initialized;
+    private String title;
+    private Color color;
 
 
     public Flowchart() {
         super();
         nodes = new ArrayList<FlowNode>();
         initialized = false;
+        title = "";
+        color = Color.BLUE;
     }
 
-    public void addData(String data) {
+    public void addData(String data) throws BuildException {
         Scanner dataScanner = new Scanner(data);
         dataScanner.useDelimiter ("->");
 
-        FlowNode node;
-        String value;
-        FlowNode lastNode = null;
+        try {
+            FlowNode node;
+            String value = dataScanner.next().trim();
+            FlowNode lastNode = null;
 
-        if (!initialized) {
-            start = new FlowNode(dataScanner.next().trim());
-            nodes.add(start);
-            lastNode = start;
-            initialized = true;
-        }
+            // Check if setting the title or color
+            if (value.equals("title")) {
+                title = dataScanner.next().trim();
+                return;
+            } else if (value.equals("color")) {
+                String color = dataScanner.next().trim();
 
-        while (dataScanner.hasNext()) {
-            value = dataScanner.next().trim();
+                Field field = Class.forName("java.awt.Color").getField(color);
+                this.color = (Color)field.get(null);
 
-            node = findNode(value);
-
-            if (node == null) {
-                node = new FlowNode(value);
-                nodes.add(node);
+                return;
             }
 
-            if (lastNode != null) {
-                lastNode.addChild(node);
-                node.addParent(lastNode);
+            if (!initialized) {
+                start = new FlowNode(value);
+                nodes.add(start);
+                lastNode = start;
+                initialized = true;
+            } else {
+                lastNode = findNode(value);
             }
 
-            lastNode = node;
+            while (dataScanner.hasNext()) {
+                value = dataScanner.next().trim();
+
+                node = findNode(value);
+
+                if (node == null) {
+                    node = new FlowNode(value);
+                    nodes.add(node);
+                }
+
+                if (lastNode != null) {
+                    lastNode.addChild(node);
+                    node.addParent(lastNode);
+                }
+
+                lastNode = node;
+            }
         }
+
+        // This will occur when they give a bad color name
+        catch (NoSuchFieldException e) {
+            throw new BuildException("FLOWCHART: Unsupported color choice");
+        }
+
+        // This will occur when any other syntax violation occurs
+        catch (Exception e) {
+            throw new BuildException("FLOWCHART: syntax error\n" + e.toString());
+        }
+
     }
 
     private FlowNode findNode(String value) {
@@ -85,12 +113,9 @@ public class Flowchart extends Diagram {
         return ++max;
     }
 
-    /* Drawing Methods */
-
     protected void draw() {
         // Width is equal to the widest an image can be
         int width = Html.PAGE_WIDTH;
-        // Set height equal to the maximum depth level * a constant
         int height = (nodes.size() + 1) * 100;
 
         // Create a new image
@@ -103,22 +128,22 @@ public class Flowchart extends Diagram {
         g.fillRect(0, 0, width, height);
 
         // Set image color
-        g.setColor(Color.BLACK);
+        g.setColor(color);
 
         // Recursive flowchart drawing...
         drawNode(start, g, 0, 0);
     }
 
-    private void drawNode(FlowNode node, Graphics g, int x, int y) {
+    private void drawNode(FlowNode node, Graphics2D g, int x, int y) {
         // Calculate width of node
         int nudgeX = 10;
         int nudgeY = 20;
 
-        int columnWidth = 100;
-        int rowHeight = 100;
-
         int width = g.getFontMetrics().stringWidth(node.getValue()) + 20;
         int height = 50;
+
+        int columnWidth = width + 30;
+        int rowHeight = height + 30;
 
         // Draw connection lines
         // g.drawLine(left-indent, lastTop, left-indent, top+halfHeight);
@@ -129,28 +154,32 @@ public class Flowchart extends Diagram {
         int childY = y;
         int triX[] = new int[3];
         int triY[] = new int[3];
+
+        node.draw();
+
         for (int i=0; i<node.getChildren().size(); i++) {
-            drawNode(node.getChildren().get(i), g, childX, childY);
-            g.drawLine(x, y + height/2, childX-nudgeX, childY+height/2);
+            if (!node.getChildren().get(i).isDrawn()) {
+                drawNode(node.getChildren().get(i), g, childX, childY);
+                g.drawLine(x, y + height/2, childX-nudgeX, childY+height/2);
 
-            triX[0] = childX-nudgeX;
-            triX[1] = childX-nudgeX;
-            triX[2] = childX;
+                triX[0] = childX-nudgeX;
+                triX[1] = childX-nudgeX;
+                triX[2] = childX;
 
-            triY[0] = childY+(height/2)-5;
-            triY[1] = childY+(height/2)+5;
-            triY[2] = childY+(height/2);
+                triY[0] = childY+(height/2)-5;
+                triY[1] = childY+(height/2)+5;
+                triY[2] = childY+(height/2);
 
-            g.fillPolygon(triX,triY,3);
-            childY += rowHeight;
+                g.fillPolygon(triX,triY,3);
+                childY += rowHeight;
+            }
         }
 
-        // Draw node
-        g.setColor(Color.WHITE);
+        // Draw node;
         g.fillRect(x, y, width, height);
         g.setColor(Color.BLACK);
-        g.drawRect(x, y, width, height);
         g.drawString(node.getValue(), x + nudgeX, y + nudgeY);
+        g.setColor(color);
     }
 }
 
@@ -158,11 +187,13 @@ class FlowNode {
     private String value;
     private ArrayList<FlowNode> children;
     private ArrayList<FlowNode> parents;
+    private boolean drawn;
 
     public FlowNode(String value) {
         this.value = value;
         this.children = new ArrayList<FlowNode>();
         this.parents = new ArrayList<FlowNode>();
+        this.drawn = false;
     }
 
     public String getValue() {
@@ -183,5 +214,13 @@ class FlowNode {
 
     public ArrayList<FlowNode> getParents() {
         return parents;
+    }
+
+    public boolean isDrawn() {
+        return drawn;
+    }
+
+    public void draw() {
+        drawn = true;
     }
 }

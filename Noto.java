@@ -239,7 +239,9 @@ class NotoFrame extends JFrame {
         item = new JMenuItem("Build Project");
         item.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
-               // Function to build all in project
+                // Function to build all in project
+                // Pass the builder the path to the current directory to build
+                Builder.getInstance().buildAll(currentFile.getParent());
             }
         });
         menu.add(item);

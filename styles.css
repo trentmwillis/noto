@@ -1,5 +1,5 @@
 body {
-    font: 100%/1.5 "Helvetica", "Arial", sans-serif;
+    font: 100%/1.5 'Helvetica', 'Arial', sans-serif;
     color: #444;
 }
 
@@ -40,6 +40,34 @@ pre {
 #content {
     max-width: 960px;
     margin: 2em auto;
+}
+
+#nav {
+    position: fixed;
+    background: white;
+    border-bottom: 1px solid #ccc;
+    top: 0;
+    margin: 0;
+    max-width: 960px;
+    width: 100%;
+    padding: 0;
+}
+
+#nav li {
+    float: left;
+    text-transform: uppercase;
+    font-size: 80%;
+    margin: 0.25em 0.5em;
+}
+
+#nav a {
+    text-decoration: none;
+    color: #ccc;
+    transition: color .3s;
+}
+
+#nav a:hover {
+    color: #555;
 }
 
 ul.circle {

@@ -23,20 +23,21 @@ public class Builder {
         return instance;
     }
 
-    public void build(File input) {
+    public void buildSingle() {
+        File input = ProjectManager.getInstance().getCurrentFile();
         if (input != null) {
             try {
                 // Create HTML file
                 String[] nameParts = input.getName().split("\\.");
                 System.out.println("Building file: " + nameParts[0]);
-                File htmlFile = new File(nameParts[0] + ".html");
+                File htmlFile = new File(ProjectManager.getInstance().getProjectPath() + nameParts[0] + ".html");
                 htmlFile.createNewFile();
 
                 // Create a writer to the HTML file
                 FileWriter writer = new FileWriter(htmlFile);
 
                 // Write the opening information
-                writer.write(Html.HEAD);
+                writer.write(Html.head(nameParts[0]));
 
                 // Reset the Interpreter from any prior builds
                 Interpreter.getInstance().reset();
@@ -56,13 +57,16 @@ public class Builder {
                 // Flush and close the write stream
                 writer.flush();
                 writer.close();
+
+                createStylesheet();
             } catch (IOException e) {
                 System.err.println("Build error: " + e.toString());
             }
         }
     }
 
-    public void buildAll(String directory) {
+    public void buildAll() {
+        String directory = ProjectManager.getInstance().getProjectPath();
         File folder = new File(directory);
         File[] files = folder.listFiles();
 
@@ -77,7 +81,7 @@ public class Builder {
             }
         }
 
-        createStylesheet(directory);
+        createStylesheet();
     }
 
     private void buildProjectFile(File input) {
@@ -125,12 +129,12 @@ public class Builder {
         }
     }
 
-    private void createStylesheet(String directory) {
+    private void createStylesheet() {
         System.out.println("Creating stylesheet...");
 
         try {
             // Make sure the "css" folder exists
-            File folder = new File(directory + "/css");
+            File folder = new File(ProjectManager.getInstance().getProjectPath() + "css");
             if (!folder.exists()) {
                 folder.mkdir();
             }

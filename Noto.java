@@ -30,7 +30,6 @@ class NotoFrame extends JFrame {
     private JFileChooser fileChooser = new JFileChooser();
     private JTextArea textArea = new JTextArea();
 
-    private File currentFile;
     private FileWriter writer;
     private FileReader reader;
     private boolean edited;
@@ -231,7 +230,7 @@ class NotoFrame extends JFrame {
         item.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
                 // Function to build current document
-                Builder.getInstance().build(currentFile);
+                Builder.getInstance().buildSingle();
             }
         });
         menu.add(item);
@@ -241,7 +240,7 @@ class NotoFrame extends JFrame {
             public void actionPerformed(ActionEvent event) {
                 // Function to build all in project
                 // Pass the builder the path to the current directory to build
-                Builder.getInstance().buildAll(currentFile.getParent());
+                Builder.getInstance().buildAll();
             }
         });
         menu.add(item);
@@ -271,20 +270,21 @@ class NotoFrame extends JFrame {
 
     private void newDocument() {
         fileChooser.setSelectedFile(null);
-        currentFile = null;
+        ProjectManager.getInstance().newDocument();
         textArea.setText("");
         setEdited(false);
     }
 
     private void save() {
         if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
-            currentFile = fileChooser.getSelectedFile();
+            File currentFile = fileChooser.getSelectedFile();
+            ProjectManager.getInstance().setCurrentFile(currentFile);
 
             try {
                 if (currentFile.exists()) {
                     // Display warning that file exists
                     JOptionPane.showConfirmDialog(this,
-                        "You are about to overwrite " +currentFile.getName() + ". Is this okay?",
+                        "You are about to overwrite " + currentFile.getName() + ". Is this okay?",
                         "File Overwrite Warning",
                         JOptionPane.WARNING_MESSAGE);
                 }
@@ -301,9 +301,9 @@ class NotoFrame extends JFrame {
     }
 
     private void saveCurrent() {
-        if (currentFile != null) {
+        if (ProjectManager.getInstance().getCurrentFile() != null) {
             try {
-                writer = new FileWriter(currentFile);
+                writer = new FileWriter(ProjectManager.getInstance().getCurrentFile());
                 textArea.write(writer);
                 setEdited(false);
             } catch (IOException e) {
@@ -316,7 +316,8 @@ class NotoFrame extends JFrame {
 
     private void open() {
         if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            currentFile = fileChooser.getSelectedFile();
+            File currentFile = fileChooser.getSelectedFile();
+            ProjectManager.getInstance().setCurrentFile(currentFile);
 
             try {
                 reader = new FileReader(currentFile);

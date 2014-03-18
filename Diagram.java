@@ -44,7 +44,7 @@ public abstract class Diagram {
 
         // Save out .png
         try {
-            imgFile = new File(id + ".png");
+            imgFile = new File(ProjectManager.getInstance().getProjectPath() + id + ".png");
             ImageIO.write(image, "png", imgFile);
         } catch (IOException exception) {
             System.out.println("Exception: " + exception.toString());

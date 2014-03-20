@@ -1,19 +1,7 @@
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.image.*;
-import java.awt.geom.*;
-import java.io.*;
-import java.lang.Math;
-import java.util.Random;
-import java.util.ArrayList;
-import java.util.Stack;     // Used in Interpreter class
-import javax.imageio.*;
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.SwingUtilities;
-import javax.swing.undo.*;
-
-import java.util.Scanner;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import javax.imageio.ImageIO;
 
 public abstract class Diagram {
     public static final DiagramType[] TYPES = {
@@ -44,7 +32,7 @@ public abstract class Diagram {
 
         // Save out .png
         try {
-            imgFile = new File(ProjectManager.getInstance().getProjectPath() + id + ".png");
+            imgFile = new File(ProjectManager.getInstance().getProjectPath() + "img/" + id + ".png");
             ImageIO.write(image, "png", imgFile);
         } catch (IOException exception) {
             System.out.println("Exception: " + exception.toString());

@@ -70,6 +70,10 @@ public class Builder {
         File folder = new File(directory);
         File[] files = folder.listFiles();
 
+        createDir("img");
+        createDir("pages");
+        createStylesheet();
+
         // Loop through and build each file
         for (int i=0; i<files.length; i++) {
             int index = files[i].getName().lastIndexOf('.');
@@ -81,7 +85,7 @@ public class Builder {
             }
         }
 
-        createStylesheet();
+        
     }
 
     private void buildProjectFile(File input) {
@@ -92,7 +96,7 @@ public class Builder {
             System.out.println("Building file in project: " + name);
 
             // See if the file exists, or create a new one
-            File htmlFile = new File(input.getParent(), name + ".html");
+            File htmlFile = new File(ProjectManager.getInstance().getProjectPath() + "pages", name + ".html");
             if (!htmlFile.exists()) {
                 htmlFile.createNewFile();
             }
@@ -156,6 +160,13 @@ public class Builder {
         // Catch any exceptions
         catch (IOException e) {
             System.out.println("Error creating stylesheet: " + e.toString());
+        }
+    }
+
+    private void createDir(String dirName) {
+        File folder = new File(ProjectManager.getInstance().getProjectPath() + dirName);
+        if (!folder.exists()) {
+            folder.mkdir();
         }
     }
 }

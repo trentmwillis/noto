@@ -19,6 +19,7 @@ public class ProjectManager {
     public void setCurrentFile(File file) {
         currentFile = file;
         projectPath = currentFile.getParent();
+        fileName = file.getName().substring(0, file.getName().lastIndexOf('.'));
     }
 
     public File getCurrentFile() {
@@ -31,6 +32,18 @@ public class ProjectManager {
 
     public String getProjectPath() {
         return projectPath + "/";
+    }
+
+    public String getOutputPath() {
+        return getProjectPath() + "output/";
+    }
+
+    public String getImagePath() {
+        return getOutputPath() + "img/";
+    }
+
+    public String getCSSPath() {
+        return getOutputPath() + "css/";
     }
 
     public void newDocument() {

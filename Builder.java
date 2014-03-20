@@ -24,79 +24,45 @@ public class Builder {
     }
 
     public void buildSingle() {
-        File input = ProjectManager.getInstance().getCurrentFile();
-        if (input != null) {
-            try {
-                // Create HTML file
-                String[] nameParts = input.getName().split("\\.");
-                System.out.println("Building file: " + nameParts[0]);
-                File htmlFile = new File(ProjectManager.getInstance().getProjectPath() + nameParts[0] + ".html");
-                htmlFile.createNewFile();
+        // Create the output folders, stylesheets, and TODO: SCRIPTS
+        createOutputDirs();
+        createStylesheet();
 
-                // Create a writer to the HTML file
-                FileWriter writer = new FileWriter(htmlFile);
-
-                // Write the opening information
-                writer.write(Html.head(nameParts[0]));
-
-                // Reset the Interpreter from any prior builds
-                Interpreter.getInstance().reset();
-
-                // Loop through each line in the input File and interpret the input to HTML
-                Scanner fileScanner = new Scanner(input);
-                while (fileScanner.hasNextLine()) {
-                    Interpreter.getInstance().interpret(fileScanner.nextLine());
-                }
-
-                // Write the interpreted information to the document
-                writer.append(Interpreter.getInstance().getOutput());
-
-                // Write the closing information
-                writer.append(Html.END);
-
-                // Flush and close the write stream
-                writer.flush();
-                writer.close();
-
-                createStylesheet();
-            } catch (IOException e) {
-                System.err.println("Build error: " + e.toString());
-            }
-        }
+        // Build the file
+        buildFile(ProjectManager.getInstance().getCurrentFile(), true);
     }
 
     public void buildAll() {
-        String directory = ProjectManager.getInstance().getProjectPath();
-        File folder = new File(directory);
-        File[] files = folder.listFiles();
+        // Get the list of files from the project directory
+        File[] files = new File(ProjectManager.getInstance().getProjectPath()).listFiles();
 
-        createDir("img");
-        createDir("pages");
+        // Create the output folders, stylesheets, and TODO: SCRIPTS
+        createOutputDirs();
         createStylesheet();
 
         // Loop through and build each file
         for (int i=0; i<files.length; i++) {
-            int index = files[i].getName().lastIndexOf('.');
+            String name = files[i].getName();
 
-            // Check to make sure it is a .txt file
-            if (files[i].isFile() && files[i].getName().substring(index+1).equals("txt")) {
+            // Check to make sure it is a file (not a folder) and a .txt file
+            if (files[i].isFile() && name.substring(name.lastIndexOf('.')+1).equals("txt")) {
                 // Build file
-                buildProjectFile(files[i]);
+                buildFile(files[i], false);
             }
         }
-
-        
     }
 
-    private void buildProjectFile(File input) {
+    private void buildFile(File input, boolean single) {
         try {
-            int index = input.getName().lastIndexOf('.');
-            String name = input.getName().substring(0, index);
+            // Get the name of the file
+            String name = (single) ? 
+                ProjectManager.getInstance().getFileName() : 
+                input.getName().substring(0, input.getName().lastIndexOf('.'));
 
-            System.out.println("Building file in project: " + name);
+            System.out.println("Building file: " + name);
 
             // See if the file exists, or create a new one
-            File htmlFile = new File(ProjectManager.getInstance().getProjectPath() + "pages", name + ".html");
+            File htmlFile = new File(ProjectManager.getInstance().getOutputPath(), name + ".html");
             if (!htmlFile.exists()) {
                 htmlFile.createNewFile();
             }
@@ -108,7 +74,9 @@ public class Builder {
             writer.write(Html.head(name));
 
             // Write the navigation info
-            writer.write(Html.navigation(input.getParent(), name));
+            if (!single) {
+                writer.write(Html.navigation(input.getParent(), name));
+            }
 
             // Reset the Interpreter from any prior builds
             Interpreter.getInstance().reset();
@@ -137,16 +105,9 @@ public class Builder {
         System.out.println("Creating stylesheet...");
 
         try {
-            // Make sure the "css" folder exists
-            File folder = new File(ProjectManager.getInstance().getProjectPath() + "css");
-            if (!folder.exists()) {
-                folder.mkdir();
-            }
-
             // Make sure the "styles" file exists
-            File stylesheet = new File(folder.getPath() + "/styles.css");
+            File stylesheet = new File(ProjectManager.getInstance().getCSSPath() + "styles.css");
             if (!stylesheet.exists()) {
-                
                 stylesheet.createNewFile();
             }
 
@@ -163,8 +124,14 @@ public class Builder {
         }
     }
 
-    private void createDir(String dirName) {
-        File folder = new File(ProjectManager.getInstance().getProjectPath() + dirName);
+    private void createOutputDirs() {
+        createDir(ProjectManager.getInstance().getOutputPath());
+        createDir(ProjectManager.getInstance().getImagePath());
+        createDir(ProjectManager.getInstance().getCSSPath());
+    }
+
+    private void createDir(String dir) {
+        File folder = new File(dir);
         if (!folder.exists()) {
             folder.mkdir();
         }

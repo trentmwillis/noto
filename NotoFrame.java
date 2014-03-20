@@ -103,7 +103,7 @@ public class NotoFrame extends JFrame {
     private void initTextArea() {
         textArea.setLineWrap(true);
         textArea.setMargin(new Insets(12,6,12,6));
-        textArea.setFont(new Font("Consolas", Font.PLAIN, 12));
+        textArea.setFont(new Font("Courier", Font.PLAIN, 14));
         textArea.addKeyListener(new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) { setEdited(true); }

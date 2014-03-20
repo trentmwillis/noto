@@ -24,7 +24,11 @@ public abstract class Diagram {
 
     public String getImagePath() {
         // Returns relative image path
-        return imgFile.getPath();
+        return "img/" + imgFile.getName();
+    }
+
+    public static void resetID() {
+        globalID = 0;
     }
 
     public void makeImage() {
@@ -32,7 +36,7 @@ public abstract class Diagram {
 
         // Save out .png
         try {
-            imgFile = new File(ProjectManager.getInstance().getImagePath() + id + ".png");
+            imgFile = new File(ProjectManager.getInstance().getImagePath() + ProjectManager.getInstance().getFileName() + id + ".png");
             ImageIO.write(image, "png", imgFile);
         } catch (IOException exception) {
             System.out.println("Exception: " + exception.toString());

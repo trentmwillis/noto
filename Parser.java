@@ -22,6 +22,11 @@ public class Parser {
         complete = false;
     }
 
+    public static void resetHard() {
+        reset();
+        Diagram.resetID();
+    }
+
     public static void newDiagram(DiagramType type) {
         // Use reflection?
         switch (type) {

@@ -37,6 +37,7 @@ public class Interpreter {
         inTable = false;
         inOrderedList = false;
         buildingDiagram = false;
+        Parser.getInstance().resetHard();
     }
 
     public static String getOutput() {

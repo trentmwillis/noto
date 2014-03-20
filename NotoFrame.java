@@ -214,7 +214,15 @@ public class NotoFrame extends JFrame {
         item = new JMenuItem("Build Single");
         item.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
-                Builder.getInstance().buildSingle();
+                Builder.getInstance().buildSingle(true);
+            }
+        });
+        menu.add(item);
+
+        item = new JMenuItem("Build Single in Project");
+        item.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent event) {
+                Builder.getInstance().buildSingle(false);
             }
         });
         menu.add(item);

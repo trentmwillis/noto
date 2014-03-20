@@ -23,13 +23,13 @@ public class Builder {
         return instance;
     }
 
-    public void buildSingle() {
+    public void buildSingle(boolean single) {
         // Create the output folders, stylesheets, and TODO: SCRIPTS
         createOutputDirs();
-        createStylesheet();
+        createStylesheets();
 
         // Build the file
-        buildFile(ProjectManager.getInstance().getCurrentFile(), true);
+        buildFile(ProjectManager.getInstance().getCurrentFile(), single);
     }
 
     public void buildAll() {
@@ -38,7 +38,8 @@ public class Builder {
 
         // Create the output folders, stylesheets, and TODO: SCRIPTS
         createOutputDirs();
-        createStylesheet();
+        createStylesheets();
+        createScripts();
 
         // Loop through and build each file
         for (int i=0; i<files.length; i++) {
@@ -47,6 +48,7 @@ public class Builder {
             // Check to make sure it is a file (not a folder) and a .txt file
             if (files[i].isFile() && name.substring(name.lastIndexOf('.')+1).equals("txt")) {
                 // Build file
+                ProjectManager.getInstance().setCurrentFile(files[i]);
                 buildFile(files[i], false);
             }
         }
@@ -101,26 +103,41 @@ public class Builder {
         }
     }
 
-    private void createStylesheet() {
-        System.out.println("Creating stylesheet...");
+    private void createStylesheets() {
+        copyFile("css/styles.min.css", ProjectManager.getInstance().getCSSPath() + "styles.min.css");
+        copyFile("css/highlight.min.css", ProjectManager.getInstance().getCSSPath() + "highlight.min.css");
+    }
 
+    private void createScripts() {
+        copyFile("scripts/jquery.min.js", ProjectManager.getInstance().getScriptPath() + "jquery.min.js");
+        copyFile("scripts/highlight.min.js", ProjectManager.getInstance().getScriptPath() + "highlight.min.js");
+    }
+
+    private void copyFile(String source, String destination) {
         try {
-            // Make sure the "styles" file exists
-            File stylesheet = new File(ProjectManager.getInstance().getCSSPath() + "styles.css");
-            if (!stylesheet.exists()) {
-                stylesheet.createNewFile();
+            // Create the new file
+            File newFile = new File(destination);
+            if (newFile.exists()) {
+                return;
             }
+            newFile.createNewFile();
 
-            // Write stylesheet to the file
-            FileWriter writer = new FileWriter(stylesheet);
-            writer.write(Html.CSS);
+            // Load the source file
+            File srcFile = new File(source);
+
+            // Write source to the new file
+            FileWriter writer = new FileWriter(newFile);
+            Scanner srcScanner = new Scanner(srcFile);
+            while (srcScanner.hasNextLine()) {
+                writer.append(srcScanner.nextLine());
+            }
             writer.flush();
             writer.close();
         }
 
         // Catch any exceptions
         catch (IOException e) {
-            System.out.println("Error creating stylesheet: " + e.toString());
+            System.out.println("Error copying file: " + e.toString());
         }
     }
 
@@ -128,6 +145,7 @@ public class Builder {
         createDir(ProjectManager.getInstance().getOutputPath());
         createDir(ProjectManager.getInstance().getImagePath());
         createDir(ProjectManager.getInstance().getCSSPath());
+        createDir(ProjectManager.getInstance().getScriptPath());
     }
 
     private void createDir(String dir) {

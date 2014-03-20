@@ -46,6 +46,10 @@ public class ProjectManager {
         return getOutputPath() + "css/";
     }
 
+    public String getScriptPath() {
+        return getOutputPath() + "scripts/";
+    }
+
     public void newDocument() {
         currentFile = null;
         projectPath = "";

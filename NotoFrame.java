@@ -5,19 +5,45 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.undo.*;
 
+/*
+This is the frame class; it handles all the GUI components
+for the program and so also handles all calling all the important
+functions.
+*/
+
 public class NotoFrame extends JFrame {
+    // File choosers and text areas are expensive to create,
+    // so just have one of each and don't create inside methods
     private JFileChooser fileChooser = new JFileChooser();
     private JTextArea textArea = new JTextArea();
 
+    // Writers and reader will be swapped out whenever a new
+    // file is loaded, but need to be shared between methods
     private FileWriter writer;
     private FileReader reader;
+    
+    // Keep track of if the file needs to be saved
     private boolean edited;
 
-    /* Undo/redo parts */
+    // Undo/redo functionality
     private UndoManager undo = new UndoManager();
     private UndoAction undoAction = new UndoAction();
     private RedoAction redoAction = new RedoAction();
 
+    // Constructor
+    public NotoFrame(int width, int height) {
+        setTitle("Noto - Note-Taking App");
+        setSize(width, height);
+
+        edited = false;
+
+        initUndoManager();
+        initMenu();
+        initTextArea();
+        initKeyListeners();
+    }
+
+    //  Nested class to represent undoable actions
     class UndoAction extends AbstractAction {
         public UndoAction() {
             super("Undo");
@@ -47,6 +73,7 @@ public class NotoFrame extends JFrame {
         }
     }
 
+    // Nested class to represent redoable actions
     class RedoAction extends AbstractAction {
         public RedoAction() {
             super("Redo");
@@ -75,6 +102,7 @@ public class NotoFrame extends JFrame {
         }
     }
 
+    // Function to initialize all the undo/redo components
     private void initUndoManager() {
         textArea.getDocument().addUndoableEditListener(new UndoableEditListener() {
             public void undoableEditHappened(UndoableEditEvent e) {
@@ -84,19 +112,6 @@ public class NotoFrame extends JFrame {
                 redoAction.updateRedoState();
             }
         });
-    }
-
-    /* Constructor */
-    public NotoFrame(int width, int height) {
-        setTitle("Noto - Note-Taking App");
-        setSize(width, height);
-
-        edited = false;
-
-        initUndoManager();
-        initMenu();
-        initTextArea();
-        initKeyListeners();
     }
 
     /* Set up the textarea/editing components */

@@ -9,7 +9,6 @@ of files. It is a singleton class because there should never be more than one.
 public class Builder {
     private static Builder instance;
 
-    private Parser parser;
     private Interpreter interpreter;
     private File output;
     private File input;

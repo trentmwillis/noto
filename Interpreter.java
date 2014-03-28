@@ -9,7 +9,6 @@ public class Interpreter {
     private static Stack<HTMLElement> tags = new Stack<HTMLElement>();
     private static StringBuilder output = new StringBuilder();
     private static Scanner scanner;
-    private static boolean lastLineEmpty = false;
     private static boolean inTable = false;
     private static boolean inOrderedList = false;
 
@@ -33,7 +32,6 @@ public class Interpreter {
     public static void reset() {
         output.setLength(0);
         tags.removeAllElements();
-        lastLineEmpty = false;
         inTable = false;
         inOrderedList = false;
         buildingDiagram = false;
@@ -60,9 +58,9 @@ public class Interpreter {
             // Set the "start" to the first token in the line
             String start = scanner.next();
 
-            // Check if the line starts a diagram
-            DiagramType diaType;
-            if ((diaType = isDiagramDeclaration(start)) != null || buildingDiagram) {
+            // Check if the line starts a Diagram or if we are currently constructing a Diagram
+            DiagramType diaType = isDiagramDeclaration(start);
+            if (diaType != null || buildingDiagram) {
                 lastLineType = currentLineType;
                 currentLineType = HTMLElement.DIAGRAM;
 
@@ -98,20 +96,10 @@ public class Interpreter {
             // Get the current line's type by passing the start token
             currentLineType = getBlockType(start);
 
-            // Make sure lastLineEmpty is set to false if there was a last line
-            if (lastLineEmpty) {
-                lastLineEmpty = false;
-            }
-
-            // If the LineType changed, then we should close the last block
+            // If the LineType changed, and we aren't in something like a list 
+            // or table then we should close the last block
             if (currentLineType != lastLineType && !inOrderedList) {
                 closeLastTag();
-
-                // Also, if the last line was a list close the item
-                if (isListLine(lastLineType)) {
-                    closeLastTag();
-                }
-
 
                 if (currentLineType == HTMLElement.TABLE) {
                     inTable = (inTable) ? false : true;
@@ -124,8 +112,6 @@ public class Interpreter {
                 openTag(currentLineType);
             } else if (inOrderedList) {
                 currentLineType = HTMLElement.OL;
-            } else if (isListLine(lastLineType)) {
-                closeLastTag();
             } else {
                 output.append("<br>");
             }
@@ -134,9 +120,9 @@ public class Interpreter {
                 inOrderedList = true;
             }
 
-            // If this is a list line, open up a new item
+            // If this is a list line, open up a new self-closing tag
             if (isListLine(currentLineType)) {
-                openTag(HTMLElement.LI);
+                openSelfClosingTag(HTMLElement.LI);
             }
 
             // If the line is a PRE line, we just want to output the entire line
@@ -207,7 +193,7 @@ public class Interpreter {
 
         // An empty line, so close the last block if the last line was part of a block
         else {
-            if (!lastLineEmpty) {
+            if (currentLineType != null) {
                 closeLastTag();
             }
 
@@ -217,7 +203,6 @@ public class Interpreter {
 
             lastLineType = currentLineType;
             currentLineType = null;
-            lastLineEmpty = true;
         }
     }
 
@@ -275,6 +260,10 @@ public class Interpreter {
 
     private static void openTag(HTMLElement tag) {
         tags.push(tag);
+        output.append(tag.getTag());
+    }
+
+    private static void openSelfClosingTag(HTMLElement tag) {
         output.append(tag.getTag());
     }
 

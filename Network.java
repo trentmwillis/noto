@@ -96,13 +96,13 @@ public class Network extends Diagram {
         height = (title != "") ? height + 100 : height;
 
         // Create a new image
-        image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        image = new BufferedImage(width, height + 100, BufferedImage.TYPE_INT_RGB);
         Graphics2D g = (Graphics2D) image.getGraphics();
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         // Fill in background with white
         g.setColor(Color.WHITE);
-        g.fillRect(0, 0, width, height);
+        g.fillRect(0, 0, width, height + 100);
 
         // Set image color
         g.setColor(color);

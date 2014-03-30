@@ -3,6 +3,31 @@ body {
     color: #444;
 }
 
+table {
+    background-color: #EFEFEF;
+    border-collapse: collapse;
+}
+
+td {
+    padding: 0.5em 1em;
+    border-right: 1px solid #BBB;
+    border-bottom: 1px solid #BBB;
+}
+
+tr:first-child td {
+    border-bottom-width: 4px;
+    font-weight: 700;
+    text-align: center;
+}
+
+td:last-child {
+    border-right: none;
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
 blockquote {
     margin: 0 0 1em;
     padding: 0.5em 1.5em;
@@ -77,14 +102,6 @@ ul.circle {
 
 ul.square {
     list-style: square;
-}
-
-ol.lower-alpha {
-    list-style: lower-alpha;
-}
-
-ol.upper-alpha {
-    list-style: upper-alpha;
 }
 
 hr {

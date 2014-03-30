@@ -28,15 +28,12 @@ public enum HTMLElement {
     UL3 ("<ul class='square'>", "</ul>", "+"),
     UL4 ("<ul class='circle'>", "</ul>", "o"),
     OL ("<ol>", "</ol>", "1."),
-    OL2 ("<ol class='upper-alpha'>", "</ol>", "A."),
-    OL3 ("<ol class='lower-alpha'>", "</ol>", "a."),
     LI ("<li>", "</li>", ""),
 
-    TABLE ("<table>", "</table>", "TT"),
-    TRH ("<tr>", "</tr>", "||"),
-    TR ("<tr>", "</tr>", "|"),
-    TH ("<th>", "</th>", "||"),
-    TD ("<td>", "</td>", "|"),
+    TABLE ("<table>", "</table>", "|"),
+    TR ("<tr>", ""),
+    TH ("<th>", "||"),
+    TD ("<td>", "|"),
 
     DIAGRAM;
 

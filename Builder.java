@@ -26,6 +26,7 @@ public class Builder {
         // Create the output folders, stylesheets, and TODO: SCRIPTS
         createOutputDirs();
         createStylesheets();
+        createScripts();
 
         // Build the file
         buildFile(ProjectManager.getInstance().getCurrentFile(), single);

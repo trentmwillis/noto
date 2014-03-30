@@ -1,25 +1,23 @@
-import java.io.*;
 import java.util.Stack;
 import java.util.Scanner;
 
+/*
+The interpreter class handles the interpretation of each line during
+the building process. It will either interpret HTML as needed, or
+pass the values to the Parser which constructs diagrams.
+*/
 
 public class Interpreter {
     private static Interpreter instance;
 
-    private static Stack<HTMLElement> tags = new Stack<HTMLElement>();
-    private static StringBuilder output = new StringBuilder();
-    private static Scanner scanner;
-    private static boolean inTable = false;
-    private static boolean inOrderedList = false;
+    private boolean buildingDiagram = false;
+    private HTMLElement currentLineType;
+    private HTMLElement lastLineType;
+    private Scanner scanner;
+    private Stack<HTMLElement> tags = new Stack<HTMLElement>();
+    private StringBuilder output = new StringBuilder();
 
-    private static HTMLElement currentLineType;
-    private static HTMLElement lastLineType;
-
-    private static boolean buildingDiagram = false;
-
-    protected Interpreter() { /* Nothing */ }
-
-    /* Public Methods */
+    protected Interpreter() { }
 
     public static Interpreter getInstance() {
         if (instance == null) {
@@ -29,16 +27,15 @@ public class Interpreter {
         return instance;
     }
 
-    public static void reset() {
+    public void reset() {
         output.setLength(0);
         tags.removeAllElements();
-        inTable = false;
-        inOrderedList = false;
         buildingDiagram = false;
         Parser.getInstance().resetHard();
     }
 
-    public static String getOutput() {
+    // Returns the output from the current interpretation
+    public String getOutput() {
         // Closes any open tags
         while (!tags.empty()) {
             closeTag(tags.pop());
@@ -48,7 +45,7 @@ public class Interpreter {
         return output.toString();
     }
 
-    public static void interpret(String line) {
+    public void interpret(String line) {
         // Check beginning of each word for tags
         scanner = new Scanner(line);
 
@@ -58,10 +55,12 @@ public class Interpreter {
             // Set the "start" to the first token in the line
             String start = scanner.next();
 
+            // Update the last line type
+            lastLineType = currentLineType;
+
             // Check if the line starts a Diagram or if we are currently constructing a Diagram
             DiagramType diaType = isDiagramDeclaration(start);
             if (diaType != null || buildingDiagram) {
-                lastLineType = currentLineType;
                 currentLineType = HTMLElement.DIAGRAM;
 
                 if (lastLineType != HTMLElement.DIAGRAM) {
@@ -90,40 +89,38 @@ public class Interpreter {
                 return;
             }
 
-            // Update the last line type
-            lastLineType = currentLineType;
-
             // Get the current line's type by passing the start token
             currentLineType = getBlockType(start);
 
             // If the LineType changed, and we aren't in something like a list 
             // or table then we should close the last block
-            if (currentLineType != lastLineType && !inOrderedList) {
-                closeLastTag();
-
-                if (currentLineType == HTMLElement.TABLE) {
-                    inTable = (inTable) ? false : true;
-                    if (!inTable) {
-                        closeLastTag();
-                    }
+            if (currentLineType != lastLineType) {
+                if (isNonClosingBlock(lastLineType)) {
+                    closeLastTag();
                 }
 
-                // Finally, open the new element tag
-                openTag(currentLineType);
-            } else if (inOrderedList) {
-                currentLineType = HTMLElement.OL;
+                if (isNonClosingBlock(currentLineType)) {
+                    openTag(currentLineType);
+
+                    if (isListLine(currentLineType)) {
+                        openSelfClosingTag(HTMLElement.LI);
+                    } else if (isTableElement(currentLineType)) {
+                        openSelfClosingTag(HTMLElement.TR);
+                        openSelfClosingTag(HTMLElement.TD);
+                    }
+                } else {
+                    openSelfClosingTag(currentLineType);
+                }
+            } else if (isListLine(currentLineType)) {
+                openSelfClosingTag(HTMLElement.LI);
+            } else if (isTableElement(currentLineType)) {
+                openSelfClosingTag(HTMLElement.TR);
+                openSelfClosingTag(HTMLElement.TD);
             } else {
                 output.append("<br>");
             }
 
-            if (currentLineType == HTMLElement.OL || currentLineType == HTMLElement.OL2 || currentLineType == HTMLElement.OL3) {
-                inOrderedList = true;
-            }
 
-            // If this is a list line, open up a new self-closing tag
-            if (isListLine(currentLineType)) {
-                openSelfClosingTag(HTMLElement.LI);
-            }
 
             // If the line is a PRE line, we just want to output the entire line
             if (currentLineType == HTMLElement.PRE) {
@@ -131,7 +128,6 @@ public class Interpreter {
                 if (scanner.hasNext()) {
                     output.append(scanner.next());
                 }
-                scanner.reset();
             }
 
             // Else, just parse the line normally
@@ -156,8 +152,13 @@ public class Interpreter {
                     // Check if this token has any opening inline style
                     HTMLElement inlineType = getInlineOpenType(token);
                     if (inlineType != null) {
+
                         // Open the inline style
-                        openTag(inlineType);
+                        if (isTableElement(inlineType)) {
+                            openSelfClosingTag(inlineType);
+                        } else {
+                            openTag(inlineType);
+                        }
 
                         //Remove the symbol from the front of the token
                         token = token.substring(inlineType.getSymbol().length());
@@ -169,17 +170,17 @@ public class Interpreter {
                         int offset = token.length() - inlineType.getEndSymbol().length();
                         // Check if the token ends with a period
                         // and chop of the symbol as appropriate
-                        if (token.endsWith(".")) {
-                            token = token.substring(0, offset-1) + ".";
+                        if (token.endsWith(".") || 
+                            token.endsWith(",") ||
+                            token.endsWith(";")) {
+                            offset--;
+                            output.append(token.substring(0, offset));
+                            closeLastTag();
+                            output.append(token.substring(token.length()-1));
                         } else {
-                            token = token.substring(0, offset);
+                            output.append(token.substring(0, offset));
+                            closeLastTag();
                         }
-
-                        // Output the token
-                        output.append(token);
-
-                        // Close the inline style
-                        closeLastTag();
 
                         // Add the space back
                         output.append(" ");
@@ -191,34 +192,51 @@ public class Interpreter {
             }
         } 
 
-        // An empty line, so close the last block if the last line was part of a block
+        // An empty line, so close the last block if the last line was
+        // part of a block that doesn't self-close
         else {
-            if (currentLineType != null) {
-                closeLastTag();
-            }
-
-            if (inOrderedList) {
-                inOrderedList = false;
-            }
-
             lastLineType = currentLineType;
             currentLineType = null;
+
+            if (isNonClosingBlock(lastLineType)) {
+                closeLastTag();
+            }
         }
     }
 
     /* Private Methods */
-
-    private static boolean isListLine(HTMLElement line) {
-        return line == HTMLElement.UL ||
+    private boolean isNonClosingBlock(HTMLElement line) {
+        return line == HTMLElement.PRE ||
+               line == HTMLElement.BLOCKQUOTE ||
+               line == HTMLElement.H1 ||
+               line == HTMLElement.H2 ||
+               line == HTMLElement.H3 ||
+               line == HTMLElement.H4 ||
+               line == HTMLElement.H5 ||
+               line == HTMLElement.H6 ||
+               line == HTMLElement.UL ||
                line == HTMLElement.UL2 ||
                line == HTMLElement.UL3 ||
                line == HTMLElement.UL4 ||
                line == HTMLElement.OL ||
-               line == HTMLElement.OL2 ||
-               line == HTMLElement.OL3;
+               line == HTMLElement.TABLE;
     }
 
-    private static DiagramType isDiagramDeclaration(String token) {
+    private boolean isListLine(HTMLElement line) {
+        return line == HTMLElement.UL ||
+               line == HTMLElement.UL2 ||
+               line == HTMLElement.UL3 ||
+               line == HTMLElement.UL4 ||
+               line == HTMLElement.OL;
+    }
+
+    private boolean isTableElement(HTMLElement line) {
+        return line == HTMLElement.TABLE ||
+               line == HTMLElement.TH ||
+               line == HTMLElement.TD;
+    }
+
+    private DiagramType isDiagramDeclaration(String token) {
         for (DiagramType type : Diagram.TYPES) {
             for (int i=0; i<type.getDefinitions().length; i++) {
                 if (token.equals("_" + type.getDefinitions()[i])) {
@@ -230,17 +248,27 @@ public class Interpreter {
         return null;
     }
 
-    private static HTMLElement getBlockType(String token) {
+    private HTMLElement getBlockType(String token) {
         for  (HTMLElement element : Html.BLOCK_ELEMENTS) {
             if (token.equals(element.getSymbol())) {
                 return element;
             }
         }
 
+        // Check for ordered lists
+        if (token.endsWith(".")) {
+            try {
+                Integer.parseInt(token.substring(0, token.length()-1));
+            } catch (Exception e) {
+                return HTMLElement.P;
+            }
+            return HTMLElement.OL;
+        }
+
         return HTMLElement.P;
     }
 
-    private static HTMLElement getInlineOpenType(String token) {
+    private HTMLElement getInlineOpenType(String token) {
         for (HTMLElement element : Html.INLINE_ELEMENTS) {
             if (token.startsWith(element.getSymbol())) {
                 return element;
@@ -249,29 +277,32 @@ public class Interpreter {
         return null;
     }
 
-    private static HTMLElement getInlineCloseType(String token) {
+    private HTMLElement getInlineCloseType(String token) {
         for (HTMLElement element : Html.INLINE_ELEMENTS) {
-            if (token.endsWith(element.getEndSymbol()) || token.endsWith(element.getEndSymbol() + ".")) {
+            if (token.endsWith(element.getEndSymbol()) ||
+                token.endsWith(element.getEndSymbol() + ".") ||
+                token.endsWith(element.getEndSymbol() + ",") ||
+                token.endsWith(element.getEndSymbol() + ";")) {
                 return element;
             }
         }
         return null;
     }
 
-    private static void openTag(HTMLElement tag) {
+    private void openTag(HTMLElement tag) {
         tags.push(tag);
         output.append(tag.getTag());
     }
 
-    private static void openSelfClosingTag(HTMLElement tag) {
+    private void openSelfClosingTag(HTMLElement tag) {
         output.append(tag.getTag());
     }
 
-    private static void closeTag(HTMLElement tag) {
+    private void closeTag(HTMLElement tag) {
         output.append(tag.getCloseTag());
     }
 
-    private static void closeLastTag() {
+    private void closeLastTag() {
         if (!tags.empty()) {
             closeTag(tags.pop());
         }

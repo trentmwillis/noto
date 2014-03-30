@@ -18,11 +18,7 @@ public class Html {
         HTMLElement.UL3,
         HTMLElement.UL4,
         HTMLElement.OL,
-        HTMLElement.OL2,
-        HTMLElement.OL3,
-        HTMLElement.TABLE,
-        HTMLElement.TRH,
-        HTMLElement.TR
+        HTMLElement.TABLE
     };
 
     public static final HTMLElement[] INLINE_ELEMENTS = {

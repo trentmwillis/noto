@@ -240,7 +240,6 @@ public class Interpreter {
         for (DiagramType type : Diagram.TYPES) {
             for (int i=0; i<type.getDefinitions().length; i++) {
                 if (token.equals("_" + type.getDefinitions()[i])) {
-                    System.out.println(type.getDefinitions()[i]);
                     return type;
                 }
             }

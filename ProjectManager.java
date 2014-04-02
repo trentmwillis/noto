@@ -3,6 +3,7 @@ import java.io.File;
 public class ProjectManager {
     private static ProjectManager instance;
 
+    private File currentlyOpenFile;
     private File currentFile;
     private String fileName;
     private String projectPath;
@@ -16,10 +17,19 @@ public class ProjectManager {
         return instance;
     }
 
+    public void setCurrentOpenFile(File file) {
+        currentlyOpenFile = file;
+        setCurrentFile(file);
+    }
+
     public void setCurrentFile(File file) {
         currentFile = file;
         projectPath = currentFile.getParent();
         fileName = file.getName().substring(0, file.getName().lastIndexOf('.'));
+    }
+
+    public File getCurrentlyOpenFile() {
+        return currentlyOpenFile;
     }
 
     public File getCurrentFile() {

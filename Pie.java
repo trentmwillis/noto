@@ -57,7 +57,7 @@ public class Pie extends Diagram {
 
             // Make sure percetages don't add to more than 100
             if (currTotal + percentage > 100) {
-                throw new BuildException("PIE DIAGRAM: Percentages for pie diagram exceed 100");
+                throw new BuildException("Diagram #" + id + " (Pie): Percentages for pie diagram exceed 100");
             } else {
                 currTotal += percentage;
             }
@@ -71,17 +71,17 @@ public class Pie extends Diagram {
 
         // This will occur when the value for the percentage is incorrect
         catch (NumberFormatException e) {
-            throw new BuildException("PIE DIAGRAM: One of the percentages is not a proper integer");
+            throw new BuildException("Diagram #" + id + " (Pie): One of the percentages is not a proper integer");
         }
 
         // This will occur when they give a bad color name
         catch (NoSuchFieldException e) {
-            throw new BuildException("PIE DIAGRAM: Unsupported color choice");
+            throw new BuildException("Diagram #" + id + " (Pie): Unsupported color choice");
         }
 
         // This will occur when any other syntax violation occurs
         catch (Exception e) {
-            throw new BuildException("PIE DIAGRAM: syntax error\n" + e.toString());
+            throw new BuildException("Diagram #" + id + " (Pie): syntax error\n" + e.toString());
         }
     }
 

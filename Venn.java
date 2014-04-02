@@ -87,6 +87,7 @@ public class Venn extends Diagram {
         }
     }
 
+    // Draw the Venn diagram
     protected void draw() {
         // Width is equal to the widest an image can be
         width = Html.PAGE_WIDTH;

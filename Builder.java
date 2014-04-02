@@ -52,6 +52,8 @@ public class Builder {
                 buildFile(files[i], false);
             }
         }
+
+        ProjectManager.getInstance().setCurrentFile(ProjectManager.getInstance().getCurrentlyOpenFile());
     }
 
     private void buildFile(File input, boolean single) {

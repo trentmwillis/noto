@@ -12,7 +12,7 @@ public abstract class Diagram {
         DiagramType.PIE
     };
 
-    protected static int globalID = 0;
+    protected static int globalID = 1;
 
     protected int id;
     protected File imgFile;
@@ -28,7 +28,7 @@ public abstract class Diagram {
     }
 
     public static void resetID() {
-        globalID = 0;
+        globalID = 1;
     }
 
     public void makeImage() {

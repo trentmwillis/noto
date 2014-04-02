@@ -195,7 +195,7 @@ class NetworkNode {
             g.drawLine(x+width/2, y+height/2, node.x+node.getWidth()/2, node.y+node.getHeight()/2);
         }
 
-        g.fillRect(x, y, width, height);
+        g.fillRoundRect(x, y, width, height, 4, 4);
         Color color = g.getColor();
         g.setColor(Color.BLACK);
         g.drawString(value, x + 10, y + 20);

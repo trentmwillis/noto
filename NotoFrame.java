@@ -323,7 +323,7 @@ public class NotoFrame extends JFrame {
     private void save() {
         if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             File currentFile = fileChooser.getSelectedFile();
-            ProjectManager.getInstance().setCurrentFile(currentFile);
+            ProjectManager.getInstance().setCurrentOpenFile(currentFile);
 
             try {
                 if (currentFile.exists()) {
@@ -365,7 +365,7 @@ public class NotoFrame extends JFrame {
     private void open() {
         if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             File currentFile = fileChooser.getSelectedFile();
-            ProjectManager.getInstance().setCurrentFile(currentFile);
+            ProjectManager.getInstance().setCurrentOpenFile(currentFile);
 
             try {
                 reader = new FileReader(currentFile);

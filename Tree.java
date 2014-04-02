@@ -18,6 +18,7 @@ public class Tree extends Diagram {
     private TreeNode root;             // Reference to the root node
     private Color color;               // Base color of the diagram
     private String title;              // Title of the chart
+    private boolean secondaryStyle;    // Boolean to draw a secondary way
 
     // Variables to aid in drawing
     private int top = 0;
@@ -40,17 +41,17 @@ public class Tree extends Diagram {
     // This method adds data in the form
     // <parent> -> <child-1>, <child-2>, ..., <child-n>
     public void addData(String data) throws BuildException {
-        // Check if diagram is initialized
-        if (!initialized) {
-            firstData(data);
-            return;
-        }
-
-        // Set up the scanner for the data
-        Scanner dataScanner = new Scanner(data);
-        dataScanner.useDelimiter ("->");
-
         try {
+            // Check if diagram is initialized
+            if (!initialized) {
+                firstData(data);
+                return;
+            }
+
+            // Set up the scanner for the data
+            Scanner dataScanner = new Scanner(data);
+            dataScanner.useDelimiter ("->");
+
             // Read in first value
             String value = dataScanner.next().trim();
 
@@ -64,6 +65,9 @@ public class Tree extends Diagram {
                 Field field = Class.forName("java.awt.Color").getField(color);
                 this.color = (Color)field.get(null);
 
+                return;
+            } else if (value.equals("alt-style")) {
+                secondaryStyle = true;
                 return;
             }
 
@@ -89,46 +93,50 @@ public class Tree extends Diagram {
 
         // This will occur when they try to pass a parent node that isn't initialized
         catch (NotFoundException e) {
-            throw new BuildException("TREE DIAGRAM: " + e.toString());
+            throw new BuildException("Diagram #" + id + " (Tree): " + e.toString());
         }
 
         // This will occur when they give a bad color name
         catch (NoSuchFieldException e) {
-            throw new BuildException("TREE DIAGRAM: Unsupported color choice");
+            throw new BuildException("Diagram #" + id + " (Tree): Unsupported color choice");
         }
 
         // This will occur when any other syntax violation occurs
         catch (Exception e) {
-            throw new BuildException("TREE DIAGRAM: syntax error\n" + e.toString());
+            throw new BuildException("Diagram #" + id + " (Tree): syntax error\n" + e.toString());
         }
     }
 
     // Method to add the first set of data to the Tree
-    private void firstData(String data) {
-        // Set up the scanner for the data
-        Scanner dataScanner = new Scanner(data);
-        dataScanner.useDelimiter("->");
+    private void firstData(String data) throws BuildException {
+        try {
+            // Set up the scanner for the data
+            Scanner dataScanner = new Scanner(data);
+            dataScanner.useDelimiter("->");
 
-        // Initialize the root node
-        TreeNode node = new TreeNode(dataScanner.next().trim());
-        root = node;
-        nodes.add(node);
+            // Initialize the root node
+            TreeNode node = new TreeNode(dataScanner.next().trim());
+            root = node;
+            nodes.add(node);
 
-        // Skip past the '->' and change to comma delimiter
-        dataScanner.useDelimiter(" ");
-        dataScanner.next();
-        dataScanner.useDelimiter(",");
+            // Skip past the '->' and change to comma delimiter
+            dataScanner.useDelimiter(" ");
+            dataScanner.next();
+            dataScanner.useDelimiter(",");
 
-        // Initialize the children nodes
-        TreeNode childNode;
-        while (dataScanner.hasNext()) {
-            childNode = new TreeNode(dataScanner.next().trim());
-            nodes.add(childNode);
-            node.addChild(childNode);
+            // Initialize the children nodes
+            TreeNode childNode;
+            while (dataScanner.hasNext()) {
+                childNode = new TreeNode(dataScanner.next().trim());
+                nodes.add(childNode);
+                node.addChild(childNode);
+            }
+
+            // Finished with initialization
+            initialized = true;
+        } catch (Exception e) {
+            throw new BuildException(e.toString());
         }
-
-        // Finished with initialization
-        initialized = true;
     }
 
     // Method to check if a node exists or not
@@ -166,7 +174,12 @@ public class Tree extends Diagram {
         top = (title != "") ? 50 : 0;
 
         // Recursive tree drawing...
-        drawNode(root, g, 0, 0);
+        if (secondaryStyle) {
+            drawNode2(root, g, width/2, 0);
+        } else {
+            drawNode(root, g, 0, 0);
+        }
+            
 
         // Draw title if it exists
         if (title != "") {
@@ -206,6 +219,11 @@ public class Tree extends Diagram {
         }
 
         color = color.brighter();
+    }
+
+    // TODO
+    private void drawNode2(TreeNode node, Graphics2D g, int left, int lastTop) {
+        System.out.println("TODO: Alternative style for Tree diagrams");
     }
 }
 

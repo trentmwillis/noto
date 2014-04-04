@@ -1,3 +1,4 @@
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
@@ -12,11 +13,16 @@ This class represents flowcharts.
 */
 
 public class Flowchart extends Diagram {
+    private static final int MAX_COL_WIDTH = Html.PAGE_WIDTH / 4;
+    private static final int ROW_HEIGHT = 50;
+    private static final int NODE_SPACING = 20;
+
     private ArrayList<FlowNode> nodes;
-    private FlowNode start;
+    private FlowNode root;
     private boolean initialized;
     private String title;
     private Color color;
+    private ArrayList<ArrayList<FlowNode>> grid;
 
 
     public Flowchart() {
@@ -50,9 +56,9 @@ public class Flowchart extends Diagram {
             }
 
             if (!initialized) {
-                start = new FlowNode(value);
-                nodes.add(start);
-                lastNode = start;
+                root = new FlowNode(value);
+                nodes.add(root);
+                lastNode = root;
                 initialized = true;
             } else {
                 lastNode = findNode(value);
@@ -99,7 +105,7 @@ public class Flowchart extends Diagram {
     }
 
     private int maxDepth() {
-        return maxDepth(start);
+        return maxDepth(root);
     }
 
     private int maxDepth(FlowNode node) {
@@ -114,9 +120,13 @@ public class Flowchart extends Diagram {
     }
 
     protected void draw() {
+        // Create a grid of all the nodes
+        constructGrid();
+
         // Width is equal to the widest an image can be
         int width = Html.PAGE_WIDTH;
-        int height = (nodes.size() + 1) * 100;
+        int height = grid.size() * (Flowchart.ROW_HEIGHT + Flowchart.NODE_SPACING);
+        height += (title != "") ? 100 : 0;
 
         // Create a new image
         image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
@@ -130,56 +140,109 @@ public class Flowchart extends Diagram {
         // Set image color
         g.setColor(color);
 
-        // Recursive flowchart drawing...
-        drawNode(start, g, 0, 0);
+        // Position all the nodes and draw them
+        drawGrid(g);
+
+        // If there is a title, draw it
+        if (title != "") {
+            g.setColor(Color.BLACK);
+            g.setFont(g.getFont().deriveFont(24f));
+            g.drawString(title, width/2 - g.getFontMetrics().stringWidth(title)/2, height - 40);
+        }
     }
 
-    private void drawNode(FlowNode node, Graphics2D g, int x, int y) {
-        // Calculate width of node
-        int nudgeX = 10;
-        int nudgeY = 20;
+    private void constructGrid() {
+        grid = new ArrayList<ArrayList<FlowNode>>();
+        addNodeToGrid(root, 0);
+    }
 
-        int width = g.getFontMetrics().stringWidth(node.getValue()) + 20;
-        int height = 50;
-
-        int columnWidth = width + 30;
-        int rowHeight = height + 30;
-
-        // Draw connection lines
-        // g.drawLine(left-indent, lastTop, left-indent, top+halfHeight);
-        // g.drawLine(left-indent, top+halfHeight, left, top+halfHeight);
-
-        // Iterate through the nodes children
-        int childX = x + columnWidth;
-        int childY = y;
-        int triX[] = new int[3];
-        int triY[] = new int[3];
-
-        node.draw();
-
-        for (int i=0; i<node.getChildren().size(); i++) {
-            if (!node.getChildren().get(i).isDrawn()) {
-                drawNode(node.getChildren().get(i), g, childX, childY);
-                g.drawLine(x, y + height/2, childX-nudgeX, childY+height/2);
-
-                triX[0] = childX-nudgeX;
-                triX[1] = childX-nudgeX;
-                triX[2] = childX;
-
-                triY[0] = childY+(height/2)-5;
-                triY[1] = childY+(height/2)+5;
-                triY[2] = childY+(height/2);
-
-                g.fillPolygon(triX,triY,3);
-                childY += rowHeight;
-            }
+    private void addNodeToGrid(FlowNode node, int rowNum) {
+        if (node.inGrid) {
+            return;
         }
 
-        // Draw node;
-        g.fillRect(x, y, width, height);
-        g.setColor(Color.BLACK);
-        g.drawString(node.getValue(), x + nudgeX, y + nudgeY);
-        g.setColor(color);
+        if (rowNum >= grid.size()) {
+            grid.add(new ArrayList<FlowNode>());
+        }
+
+        grid.get(rowNum).add(node);
+        node.inGrid = true;
+
+        if (node.hasChildren()) {
+            for (int i=0; i<node.getChildren().size(); i++) {
+                addNodeToGrid(node.getChildren().get(i), rowNum + 1);
+            }
+        }
+    }
+
+    private void drawGrid(Graphics2D g) {
+        for (int i=0; i<grid.size(); i++) {
+            positionRow(grid.get(i), (Flowchart.ROW_HEIGHT + Flowchart.NODE_SPACING) * i);
+        }
+
+        for (int i=0; i<grid.size(); i++) {
+            drawRow(grid.get(i), g);
+        }
+    }
+
+    private void positionRow(ArrayList<FlowNode> row, int topPosition) {
+        int height = Flowchart.ROW_HEIGHT;
+        int width = Math.min(Html.PAGE_WIDTH / row.size(), Flowchart.MAX_COL_WIDTH);
+        int pageMiddle = Html.PAGE_WIDTH / 2;
+
+        for (int i=0; i<row.size(); i++) {
+            FlowNode node = row.get(i);
+
+            int leftOffset = (width+Flowchart.NODE_SPACING) * (i-row.size()/2);
+            leftOffset -= (row.size()%2 == 0) ? 0 : (width+Flowchart.NODE_SPACING)/2;
+
+            node.x = pageMiddle + leftOffset;
+            node.y = topPosition;
+            node.height = Flowchart.ROW_HEIGHT;
+            node.width = width;
+        }
+    }
+
+    private void drawRow(ArrayList<FlowNode> row, Graphics2D g) {
+        for (int i=0; i<row.size(); i++) {
+            FlowNode node = row.get(i);
+
+            drawConnections(node, g);
+            g.fillRect(node.x, node.y, node.width, node.height);
+
+            g.setColor(Color.WHITE);
+            g.drawString(node.getValue(), node.x + node.width/2 - g.getFontMetrics().stringWidth(node.getValue())/2, node.y + node.height/2);
+
+            color = color.darker();
+            g.setColor(color);
+        }
+    }
+
+    private void drawConnections(FlowNode node, Graphics2D g) {
+        int triSize = 10;
+        int triX[] = new int[3];
+        int triY[] = new int[3];
+        int strokeWidth = 2;
+        ArrayList<FlowNode> children = node.getChildren();
+
+        g.setStroke(new BasicStroke(strokeWidth));
+        for (int i=0; i<children.size(); i++) {
+            int childX = children.get(i).x + children.get(i).width/2;
+            int childY = children.get(i).y;
+
+            g.drawLine(node.x+strokeWidth, node.y+strokeWidth, childX, childY-triSize);
+
+            triX[0] = childX-triSize/2;
+            triX[1] = childX+triSize/2;
+            triX[2] = childX;
+
+            triY[0] = childY-triSize;
+            triY[1] = childY-triSize;
+            triY[2] = childY;
+
+            g.fillPolygon(triX,triY,3);
+        }
+        g.setStroke(new BasicStroke(1));
     }
 }
 
@@ -187,13 +250,14 @@ class FlowNode {
     private String value;
     private ArrayList<FlowNode> children;
     private ArrayList<FlowNode> parents;
-    private boolean drawn;
+    public int x, y, width, height;
+    public boolean inGrid;
 
     public FlowNode(String value) {
         this.value = value;
         this.children = new ArrayList<FlowNode>();
         this.parents = new ArrayList<FlowNode>();
-        this.drawn = false;
+        this.inGrid = false;
     }
 
     public String getValue() {
@@ -208,19 +272,15 @@ class FlowNode {
         parents.add(node);
     }
 
+    public boolean hasChildren() {
+        return children.size() > 0;
+    }
+
     public ArrayList<FlowNode> getChildren() {
         return children;
     }
 
     public ArrayList<FlowNode> getParents() {
         return parents;
-    }
-
-    public boolean isDrawn() {
-        return drawn;
-    }
-
-    public void draw() {
-        drawn = true;
     }
 }

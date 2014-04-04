@@ -91,18 +91,18 @@ public class Network extends Diagram {
     protected void draw() {
         // Width is equal to the widest an image can be
         int width = Html.PAGE_WIDTH;
-        // Set height equal to the maximum depth level * a constant
-        int height = (nodes.size()/2 + 1) * 60;
-        height = (title != "") ? height + 100 : height;
+        int height = (nodes.size()/2 + 1) * (NetworkNode.NODE_HEIGHT + NetworkNode.NODE_GAP);
+
+        height += (title != "") ? 100 : 0;
 
         // Create a new image
-        image = new BufferedImage(width, height + 100, BufferedImage.TYPE_INT_RGB);
+        image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         Graphics2D g = (Graphics2D) image.getGraphics();
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         // Fill in background with white
         g.setColor(Color.WHITE);
-        g.fillRect(0, 0, width, height + 100);
+        g.fillRect(0, 0, width, height);
 
         // Set image color
         g.setColor(color);
@@ -121,9 +121,9 @@ public class Network extends Diagram {
             node.initDimensions(g);
             node.x = (int)Math.round(r * Math.cos(Math.toRadians(theta))) + cx - node.getWidth()/2;
             node.y = (int)Math.round(r * Math.sin(Math.toRadians(theta))) + cy;
-            if (lastNode != null && Math.abs(node.y - lastNode.y) < lastNode.getHeight()) {
-                node.y = lastNode.y - lastNode.getHeight() - 10;
-            }
+            // if (lastNode != null && Math.abs(node.y - lastNode.y) < lastNode.getHeight()) {
+            //     node.y = lastNode.y - lastNode.getHeight() - 10;
+            // }
             theta += dTheta;
             lastNode = node;
         }
@@ -140,6 +140,9 @@ public class Network extends Diagram {
 }
 
 class NetworkNode {
+    public static final int NODE_HEIGHT = 50;
+    public static final int NODE_GAP = 20;
+
     private String value;
     private ArrayList<NetworkNode> connections;
     private boolean drawn;
@@ -176,8 +179,8 @@ class NetworkNode {
     }
 
     public void initDimensions(Graphics2D g) {
-        width = g.getFontMetrics().stringWidth(value) + 20;
-        height = 30;
+        width = g.getFontMetrics().stringWidth(value) + NetworkNode.NODE_GAP;
+        height = NetworkNode.NODE_HEIGHT;
     }
 
     public void draw(Graphics2D g) {

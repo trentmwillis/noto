@@ -87,6 +87,10 @@ pre {
     margin: 0.25em 0.5em;
 }
 
+#nav a.active {
+    color: #555;
+}
+
 #nav a {
     text-decoration: none;
     color: #ccc;

@@ -208,7 +208,7 @@ public class Flowchart extends Diagram {
             FlowNode node = row.get(i);
 
             drawConnections(node, g);
-            g.fillRect(node.x, node.y, node.width, node.height);
+            g.fillRoundRect(node.x, node.y, node.width, node.height, 4, 4);
 
             g.setColor(Color.WHITE);
             g.drawString(node.getValue(), node.x + node.width/2 - g.getFontMetrics().stringWidth(node.getValue())/2, node.y + node.height/2);

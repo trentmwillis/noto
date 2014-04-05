@@ -53,7 +53,7 @@ public class Html {
             if (files[i].isFile() && files[i].getName().substring(index+1).equals("txt")) {
                 String name = files[i].getName().substring(0, index);
                 if (name.equals(currentFile)) {
-                    navigation.append("<li class='active'><a href='" + name + ".html'>" + name + "</a></li>");
+                    navigation.append("<li><a href='" + name + ".html' class='active'>" + name + "</a></li>");
                 } else {
                     navigation.append("<li><a href='" + name + ".html'>" + name + "</a></li>");
                 }   

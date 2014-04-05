@@ -17,7 +17,6 @@ public class NotoFrame extends JFrame {
     // so just have one of each and don't create inside methods
     private JFileChooser fileChooser = new JFileChooser();
     private JTextArea textArea = new JTextArea();
-    private JTextArea lineNumbers = new JTextArea("1");
 
     // Writers and reader will be swapped out whenever a new
     // file is loaded, but need to be shared between methods
@@ -119,15 +118,9 @@ public class NotoFrame extends JFrame {
     /* Set up the textarea/editing components */
     private void initTextArea() {
         JScrollPane scrollPane = new JScrollPane();
-
-        lineNumbers.setBackground(Color.LIGHT_GRAY);
-        lineNumbers.setEditable(false);
-
-        textArea.setLineWrap(false);
+        textArea.setLineWrap(true);
         textArea.setMargin(new Insets(6, 6, 6, 6));
-        lineNumbers.setMargin(new Insets(6, 6, 6, 6));
         textArea.setFont(new Font("Courier", Font.PLAIN, 14));
-        lineNumbers.setFont(new Font("Courier", Font.PLAIN, 14));
         textArea.addKeyListener(new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) { setEdited(true); }
@@ -140,33 +133,20 @@ public class NotoFrame extends JFrame {
         });
 
         textArea.getDocument().addDocumentListener(new DocumentListener() {
-            public String getText(){
-                int caretPosition = textArea.getDocument().getLength();
-                Element root = textArea.getDocument().getDefaultRootElement();
-                String text = "1" + System.getProperty("line.separator");
-                for(int i = 2; i < root.getElementIndex( caretPosition ) + 2; i++){
-                    text += i + System.getProperty("line.separator");
-                }
-                return text;
-            }
             @Override
             public void changedUpdate(DocumentEvent de) {
-                lineNumbers.setText(getText());
             }
  
             @Override
             public void insertUpdate(DocumentEvent de) {
-                lineNumbers.setText(getText());
             }
  
             @Override
             public void removeUpdate(DocumentEvent de) {
-                lineNumbers.setText(getText());
             }
         });
 
         scrollPane.getViewport().add(textArea);
-        scrollPane.setRowHeaderView(lineNumbers);
         setContentPane(scrollPane);
     }
 

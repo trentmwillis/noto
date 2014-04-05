@@ -3,6 +3,8 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.QuadCurve2D;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -81,17 +83,10 @@ public class Network extends Diagram {
     }
 
     /* Drawing Methods */
-
-    private int top = 0;
-    private int indent = 50;
-    private int height = 50;
-    private int halfHeight = height / 2;
-    private int nudge = 10;
-
     protected void draw() {
         // Width is equal to the widest an image can be
         int width = Html.PAGE_WIDTH;
-        int height = (nodes.size()/2 + 1) * (NetworkNode.NODE_HEIGHT + NetworkNode.NODE_GAP);
+        int height = (nodes.size()/2 + 1) * 60;
 
         height += (title != "") ? 100 : 0;
 
@@ -105,30 +100,41 @@ public class Network extends Diagram {
         g.fillRect(0, 0, width, height);
 
         // Set image color
-        g.setColor(color);
+        g.setColor(Color.BLACK);
 
-        // Reset the 'top' variable
-        top = 0;
-
-        NetworkNode node, lastNode = null;
+        NetworkNode node;
         int cx = width/2;
         int cy = (title != "") ? (height-100)/2 : height/2;
         double theta = 0;
-        double r = cy;
+        int r = nodes.size() * 10;
         double dTheta = 360/nodes.size();
+
         for (int i=0; i<nodes.size(); i++) {
             node = nodes.get(i);
-            node.initDimensions(g);
-            node.x = (int)Math.round(r * Math.cos(Math.toRadians(theta))) + cx - node.getWidth()/2;
+            node.x = (int)Math.round(r * Math.cos(Math.toRadians(theta))) + cx;
             node.y = (int)Math.round(r * Math.sin(Math.toRadians(theta))) + cy;
-            // if (lastNode != null && Math.abs(node.y - lastNode.y) < lastNode.getHeight()) {
-            //     node.y = lastNode.y - lastNode.getHeight() - 10;
-            // }
+
+            AffineTransform orig = g.getTransform();
+            g.translate(cx, cy);
+            g.rotate(Math.toRadians(theta));
+            g.drawString(node.getValue(), r, 0);
+            g.setTransform(orig);
+
             theta += dTheta;
-            lastNode = node;
         }
 
-        nodes.get(0).draw(g);
+        // Draw connection lines
+        for (int i=0; i<nodes.size(); i++) {
+            node = nodes.get(i);
+            g.setColor(color);
+            for (int j=0; j<node.getConnections().size(); j++) {
+                NetworkNode connectionNode = node.getConnections().get(j);
+                QuadCurve2D q = new QuadCurve2D.Float();
+                q.setCurve(node.x, node.y, cx, cy, connectionNode.x, connectionNode.y);
+                g.draw(q);
+            }
+            color = color.darker();
+        }
 
         // Draw the title if set
         if (title != "") {
@@ -140,18 +146,12 @@ public class Network extends Diagram {
 }
 
 class NetworkNode {
-    public static final int NODE_HEIGHT = 50;
-    public static final int NODE_GAP = 20;
-
     private String value;
     private ArrayList<NetworkNode> connections;
-    private boolean drawn;
-    private int width, height;
     public int x, y;
 
     public NetworkNode(String value) {
         this.value = value;
-        this.drawn = false;
         this.connections = new ArrayList<NetworkNode>();
     }
 
@@ -165,43 +165,5 @@ class NetworkNode {
 
     public ArrayList<NetworkNode> getConnections() {
         return connections;
-    }
-
-    public boolean isDrawn() {
-        return drawn;
-    }
-
-    public int getWidth() {
-        return width;
-    }
-    public int getHeight() {
-        return height;
-    }
-
-    public void initDimensions(Graphics2D g) {
-        width = g.getFontMetrics().stringWidth(value) + NetworkNode.NODE_GAP;
-        height = NetworkNode.NODE_HEIGHT;
-    }
-
-    public void draw(Graphics2D g) {
-        drawn = true;
-
-        int offset = Html.PAGE_WIDTH / connections.size();
-
-        // Draw connection lines
-        for (int i=0; i<connections.size(); i++) {
-            NetworkNode node = connections.get(i);
-            if (!node.isDrawn()) {
-                node.draw(g);
-            }
-
-            g.drawLine(x+width/2, y+height/2, node.x+node.getWidth()/2, node.y+node.getHeight()/2);
-        }
-
-        g.fillRoundRect(x, y, width, height, 4, 4);
-        Color color = g.getColor();
-        g.setColor(Color.BLACK);
-        g.drawString(value, x + 10, y + 20);
-        g.setColor(color);
     }
 }

@@ -86,13 +86,33 @@ public class Network extends Diagram {
     protected void draw() {
         // Width is equal to the widest an image can be
         int width = Html.PAGE_WIDTH;
-        int height = (nodes.size()/2 + 1) * 60;
+
+        // Height needs to be 2 longest strings put together plus the radius of the circle
+        image = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = (Graphics2D) image.getGraphics();
+
+        int r = nodes.size() * 10;
+        int max1 = g.getFontMetrics().stringWidth(nodes.get(0).getValue());
+        int max2 = g.getFontMetrics().stringWidth(nodes.get(1).getValue());
+        for (int i=2; i<nodes.size(); i++) {
+            int length = g.getFontMetrics().stringWidth(nodes.get(i).getValue());
+            if (length > max1) {
+                if (max1 > max2) {
+                    max2 = max1;
+                }
+
+                max1 = length;
+            } else if (length > max2) {
+                max2 = length;
+            }
+        }
+        int height = max1 + max2 + (2*r);
 
         height += (title != "") ? 100 : 0;
 
         // Create a new image
         image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        Graphics2D g = (Graphics2D) image.getGraphics();
+        g = (Graphics2D) image.getGraphics();
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         // Fill in background with white
@@ -106,7 +126,6 @@ public class Network extends Diagram {
         int cx = width/2;
         int cy = (title != "") ? (height-100)/2 : height/2;
         double theta = 0;
-        int r = nodes.size() * 10;
         double dTheta = 360/nodes.size();
 
         for (int i=0; i<nodes.size(); i++) {
@@ -116,8 +135,15 @@ public class Network extends Diagram {
 
             AffineTransform orig = g.getTransform();
             g.translate(cx, cy);
-            g.rotate(Math.toRadians(theta));
-            g.drawString(node.getValue(), r, 0);
+            if (theta > 90 && theta < 270) {
+                g.rotate(Math.toRadians(theta));
+                g.scale(-1, -1);
+                g.drawString(node.getValue(), -r - g.getFontMetrics().stringWidth(node.getValue()), 0);
+            } else {
+                g.rotate(Math.toRadians(theta));
+                g.drawString(node.getValue(), r, 0);
+            }
+
             g.setTransform(orig);
 
             theta += dTheta;

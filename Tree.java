@@ -13,12 +13,17 @@ it is primarily accomplished by using a tree data structure.
 */
 
 public class Tree extends Diagram {
+    private static final int MAX_COL_WIDTH = Html.PAGE_WIDTH / 4;
+    private static final int ROW_HEIGHT = 50;
+    private static final int NODE_SPACING = 20;
+
     private ArrayList<TreeNode> nodes; // Stores the nodes for the tree
     private boolean initialized;       // Tracks if the tree has been initialized
     private TreeNode root;             // Reference to the root node
     private Color color;               // Base color of the diagram
     private String title;              // Title of the chart
     private boolean secondaryStyle;    // Boolean to draw a secondary way
+    private ArrayList<ArrayList<TreeNode>> grid;
 
     // Variables to aid in drawing
     private int top = 0;
@@ -175,17 +180,16 @@ public class Tree extends Diagram {
 
         // Recursive tree drawing...
         if (secondaryStyle) {
-            drawNode2(root, g, width/2, 0);
+            draw2(g);
         } else {
             drawNode(root, g, 0, 0);
-        }
-            
+        }   
 
         // Draw title if it exists
         if (title != "") {
             g.setColor(Color.BLACK);
             g.setFont(g.getFont().deriveFont(24f));
-            g.drawString(title, width/2 - g.getFontMetrics().stringWidth(title)/2, 40);
+            g.drawString(title, width/2 - g.getFontMetrics().stringWidth(title)/2, height - 40);
         }
     }
 
@@ -222,8 +226,65 @@ public class Tree extends Diagram {
     }
 
     // TODO
-    private void drawNode2(TreeNode node, Graphics2D g, int left, int lastTop) {
-        System.out.println("TODO: Alternative style for Tree diagrams");
+    private void draw2(Graphics2D g) {
+        // Construct grid
+        grid = new ArrayList<ArrayList<TreeNode>>();
+        addNodeToGrid(root, 0);
+
+        drawGrid(g);
+    }
+
+    private void addNodeToGrid(TreeNode node, int rowNum) {
+        if (node.inGrid) {
+            return;
+        }
+
+        if (rowNum >= grid.size()) {
+            grid.add(new ArrayList<TreeNode>());
+        }
+
+        grid.get(rowNum).add(node);
+        node.inGrid = true;
+        if (node.hasChildren()) {
+            for (int i=0; i<node.getChildren().size(); i++) {
+                addNodeToGrid(node.getChildren().get(i), rowNum + 1);
+            }
+        }
+    }
+
+    private void drawGrid(Graphics2D g) {
+        for (int i=grid.size()-1; i>=0; i--) {
+            drawRow(grid.get(i), i*(Tree.ROW_HEIGHT + Tree.NODE_SPACING), g);
+        }
+    }
+
+    private void drawRow(ArrayList<TreeNode> row, int topPosition, Graphics2D g) {
+        int height = Tree.ROW_HEIGHT;
+        int width = Math.min(Html.PAGE_WIDTH / row.size(), Tree.MAX_COL_WIDTH);
+        int pageMiddle = Html.PAGE_WIDTH / 2;
+
+        for (int i=0; i<row.size(); i++) {
+            TreeNode node = row.get(i);
+
+            int leftOffset = (width + Tree.NODE_SPACING) * (i-row.size()/2);
+            leftOffset -= (row.size()%2 == 0) ? 0 : (width+Tree.NODE_SPACING)/2;
+
+            node.x = pageMiddle + leftOffset;
+            node.y = topPosition;
+
+            // Draw connection lines
+            for (int j=0; j<node.getChildren().size(); j++) {
+                TreeNode child = node.getChildren().get(j);
+                g.drawLine(node.x + width/2, node.y + height, child.x, child.y);
+            }
+
+            g.fillRoundRect(node.x, node.y, width, height, 4, 4);
+            g.setColor(Color.WHITE);
+            g.drawString(node.getValue(), node.x + width/2 - g.getFontMetrics().stringWidth(node.getValue())/2, node.y + height/2);
+
+            color = color.darker();
+            g.setColor(color);
+        }
     }
 }
 
@@ -232,10 +293,13 @@ public class Tree extends Diagram {
 class TreeNode {
     private ArrayList<TreeNode> children;
     private String value;
+    public int x, y;
+    public boolean inGrid;
 
     public TreeNode(String value) {
         this.value = value;
-        children = new ArrayList<TreeNode>();
+        this.children = new ArrayList<TreeNode>();
+        this.inGrid = false;
     }
 
     public String getValue() {
@@ -244,6 +308,10 @@ class TreeNode {
 
     public void addChild(TreeNode node) {
         children.add(node);
+    }
+
+    public boolean hasChildren() {
+        return children.size() > 0;
     }
 
     public ArrayList<TreeNode> getChildren() {

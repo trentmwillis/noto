@@ -8,6 +8,8 @@ pass the values to the Parser which constructs diagrams.
 */
 
 public class Interpreter {
+    public static final String ESCAPE_CHAR = "\\";
+
     private static Interpreter instance;
 
     private boolean buildingDiagram = false;
@@ -162,24 +164,33 @@ public class Interpreter {
 
                         //Remove the symbol from the front of the token
                         token = token.substring(inlineType.getSymbol().length());
+                    } else if (token.startsWith(Interpreter.ESCAPE_CHAR)) {
+                        token = token.substring(1);
                     }
+
+                    // Check for HTML entities
+                    token = replaceHTMLEntities(token);
 
                     // Check if this token has any closing inline styles
                     inlineType = getInlineCloseType(token);
-                    if (inlineType != null) {
-                        int offset = token.length() - inlineType.getEndSymbol().length();
+                    int offset;
+                    if (inlineType != null && (offset = token.indexOf(Interpreter.ESCAPE_CHAR)) > -1) {
+                        output.append(token.substring(0,offset) + token.substring(offset+1) + " ");
+                    } else if (inlineType != null) {
+                        boolean punctuation = false;
+                        offset = token.length() - inlineType.getEndSymbol().length();
                         // Check if the token ends with a period
                         // and chop of the symbol as appropriate
-                        if (token.endsWith(".") || 
-                            token.endsWith(",") ||
-                            token.endsWith(";")) {
+                        if (token.endsWith(".") || token.endsWith(",") || token.endsWith(";")) {
                             offset--;
-                            output.append(token.substring(0, offset));
-                            closeLastTag();
+                            punctuation = true;
+                        }
+
+                        output.append(token.substring(0, offset));
+                        closeLastTag();
+
+                        if (punctuation) {
                             output.append(token.substring(token.length()-1));
-                        } else {
-                            output.append(token.substring(0, offset));
-                            closeLastTag();
                         }
 
                         // Add the space back
@@ -205,6 +216,23 @@ public class Interpreter {
     }
 
     /* Private Methods */
+    private String replaceHTMLEntities(String token) {
+        for (HTMLEntity entity : HTMLEntity.values()) {
+            int i = -1;
+            int lasti = -1;
+            while ((i = token.indexOf(entity.getSymbol(), lasti)) > -1) {
+                if (i > 0 && i > lasti) {
+                    token = token.substring(0,i) + entity.getEntity() + token.substring(i+1);
+                } else if (i == 0 && lasti < 0) {
+                    token = entity.getEntity() + token.substring(1);
+                }
+                lasti = i + 1;
+            }
+        }
+
+        return token;
+    }
+
     private boolean isNonClosingBlock(HTMLElement line) {
         return line == HTMLElement.PRE ||
                line == HTMLElement.BLOCKQUOTE ||

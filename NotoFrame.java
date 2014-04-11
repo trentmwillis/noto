@@ -358,4 +358,15 @@ public class NotoFrame extends JFrame {
             }
         }
     }
+
+    public void open(File file) {
+        ProjectManager.getInstance().setCurrentOpenFile(file);
+        try {
+            reader = new FileReader(file);
+            textArea.read(reader, file);
+            setEdited(false);
+        } catch (IOException e) {
+            System.out.println(e.toString());
+        }
+    }
 }

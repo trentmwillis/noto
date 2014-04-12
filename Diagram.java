@@ -9,7 +9,8 @@ public abstract class Diagram {
         DiagramType.FLOWCHART,
         DiagramType.NETWORK,
         DiagramType.VENN,
-        DiagramType.PIE
+        DiagramType.PIE,
+        DiagramType.PLOT
     };
 
     protected static int globalID = 1;

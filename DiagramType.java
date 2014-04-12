@@ -3,7 +3,8 @@ public enum DiagramType {
     FLOWCHART ("flowchart", "fc"),
     NETWORK ("network", "nw"),
     VENN ("venn-2", "venn"),
-    PIE ("pie");
+    PIE ("pie"),
+    PLOT("plot");
 
     private String[] definitions;
 

@@ -40,6 +40,8 @@ public class Parser {
                         break;
             case FLOWCHART : building = new Flowchart();
                              break;
+            case PLOT : building = new Plot();
+                        break;
             default :   building = new Tree();
         }
         isBuilding = true;

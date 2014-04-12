@@ -168,11 +168,14 @@ public class Interpreter {
                         token = token.substring(1);
                     }
 
-                    // Check for HTML entities
-                    token = replaceHTMLEntities(token);
-
                     // Check if this token has any closing inline styles
                     inlineType = getInlineCloseType(token);
+
+                    // Check for HTML entities
+                    if (inlineType != HTMLElement.CODE) {
+                        token = replaceHTMLEntities(token);
+                    }
+
                     int offset;
                     if (inlineType != null && (offset = token.indexOf(Interpreter.ESCAPE_CHAR)) > -1) {
                         output.append(token.substring(0,offset) + token.substring(offset+1) + " ");
@@ -221,6 +224,10 @@ public class Interpreter {
             int i = -1;
             int lasti = -1;
             while ((i = token.indexOf(entity.getSymbol(), lasti)) > -1) {
+                if (entity == HTMLEntity.AMPERSAND && token.endsWith(";")) {
+                    break;
+                }
+
                 if (i > 0 && i > lasti) {
                     token = token.substring(0,i) + entity.getEntity() + token.substring(i+1);
                 } else if (i == 0 && lasti < 0) {

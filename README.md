@@ -4,6 +4,24 @@
 
 The output of building these notes will be formatted webpages that provide easy to read and accessible means of reviewing and distributing notes.
 
+## Compilation From Source
+
+There are two steps to compiling Noto into an executable. First you need to generate the class files:
+
+    javac src/*.java
+
+At this point you can run the application from the terminal with:
+
+    java Noto
+
+But if you want an executable file, then you need to build the JAR for it:
+
+    jar cvfm Noto.jar manifest.txt *.class
+
+After creating the JAR I recommend cleaning up the class files:
+
+    rm *.class
+
 ## Brief Background
 
 The idea for **Noto** came from my experience in college classrooms where I often had trouble both paying attention while trying to take nicely formatted and organized notes. So when it became time to come up with ideas for my senior project (class CIS 4914), I thought "why not?" and here we are now.

@@ -1,0 +1,130 @@
+body {
+    font: 100%/1.5 'Helvetica', 'Arial', sans-serif;
+    color: #444;
+}
+
+table {
+    background-color: #EFEFEF;
+    border-collapse: collapse;
+}
+
+td {
+    padding: 0.5em 1em;
+    border-right: 1px solid #BBB;
+    border-bottom: 1px solid #BBB;
+}
+
+tr:first-child td {
+    border-bottom-width: 4px;
+    font-weight: 700;
+    text-align: center;
+}
+
+td:last-child {
+    border-right: none;
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+blockquote {
+    margin: 0 0 1em;
+    padding: 0.5em 1.5em;
+    border-left: 0.25em solid #DDD;
+    color: #777;
+    background: #EFEFEF;
+    font-style: italic;
+    position: relative;
+}
+
+blockquote:before {
+    content: '\201C';
+    font-size: 2em;
+    line-height: 46px;
+    display: block;
+    position: absolute;
+    height: 32px;
+    width: 32px;
+    background: #DDD;
+    border-radius: 99px;
+    text-indent: 6px;
+    left: -0.5em;
+}
+
+mark {
+    background: #E0F268;
+    padding: 0.1em 0.25em;
+    border-radius: 0.25em;
+}
+
+pre {
+    border-left: 0.25rem solid #DDD;
+    word-wrap: break-word;
+}
+
+#content {
+    max-width: 960px;
+    margin: 2em auto;
+}
+
+#nav {
+    position: fixed;
+    background: white;
+    border-bottom: 1px solid #ccc;
+    top: 0;
+    margin: 0;
+    left: 0;
+    width: 100%;
+    padding: 0;
+    z-index: 10;
+}
+
+#nav li {
+    float: left;
+    text-transform: uppercase;
+    font-size: 80%;
+    margin: 0.25em 0.5em;
+}
+
+#nav a.active {
+    color: #555;
+}
+
+#nav a {
+    text-decoration: none;
+    color: #ccc;
+    transition: color .3s;
+}
+
+#nav a:hover {
+    color: #555;
+}
+
+ul.circle {
+    list-style: circle;
+}
+
+ul.square {
+    list-style: square;
+}
+
+hr {
+    border: none;
+    border-top: 1px solid #CCC;
+    margin: 2em 0em;
+}
+
+hr.double {
+    height: 2px;
+    border-bottom: 1px dotted #CCC;
+    border-top-color: #AAA;
+}
+
+u {
+    text-decoration: none;
+    border-bottom: 1px dotted #555;
+}
+
+q:before { content: '\201C'; }
+q:after { content: '\201D'; }
